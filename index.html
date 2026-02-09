@@ -3,254 +3,610 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Орёл и Решка</title>
+    <title>Vitcoin Gifts</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .stars-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
         }
 
         .container {
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
+            position: relative;
+            z-index: 1;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
         }
 
-        h1 {
+        .header {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
             color: white;
-            font-size: 2.5em;
+            font-size: 2em;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .stats {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 30px;
-            color: white;
+        .balance {
             display: flex;
-            justify-content: space-around;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            opacity: 0.8;
-        }
-
-        .stat-value {
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
             font-size: 1.5em;
+            color: #FFD700;
             font-weight: bold;
-            margin-top: 5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .coin-container {
-            perspective: 1000px;
-            margin: 40px 0;
-            height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .coin {
-            width: 180px;
-            height: 180px;
+        .wheel-container {
             position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.1s;
-        }
-
-        .coin.flipping {
-            animation: flip 1s ease-in-out;
-        }
-
-        @keyframes flip {
-            0% { transform: rotateY(0deg); }
-            100% { transform: rotateY(1800deg); }
-        }
-
-        .coin-side {
             width: 100%;
-            height: 100%;
+            max-width: 350px;
+            margin: 30px auto;
+            display: none;
+        }
+
+        .wheel-container.active {
+            display: block;
+        }
+
+        .wheel {
+            width: 100%;
+            aspect-ratio: 1;
             border-radius: 50%;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            border: 8px solid white;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            position: relative;
+            transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+        }
+
+        .wheel-segment {
             position: absolute;
-            backface-visibility: hidden;
+            width: 50%;
+            height: 50%;
+            top: 50%;
+            left: 50%;
+            transform-origin: 0 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 5em;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 5px solid #FFD700;
+            font-size: 2em;
         }
 
-        .heads {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            transform: rotateY(0deg);
-        }
-
-        .tails {
-            background: linear-gradient(135deg, #C0C0C0 0%, #808080 100%);
-            transform: rotateY(180deg);
-        }
-
-        .buttons {
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
             display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #FF4444;
+            z-index: 20;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             margin-bottom: 20px;
         }
 
-        button {
-            flex: 1;
-            padding: 18px;
-            font-size: 1.2em;
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 25px 15px;
+            color: white;
+            font-size: 1.1em;
             font-weight: bold;
-            border: none;
-            border-radius: 15px;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .btn-heads {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: #333;
-        }
-
-        .btn-tails {
-            background: linear-gradient(135deg, #C0C0C0 0%, #808080 100%);
-            color: white;
-        }
-
-        button:active {
+        .menu-btn:active {
             transform: scale(0.95);
         }
 
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .menu-btn .emoji {
+            font-size: 2.5em;
+            display: block;
+            margin-bottom: 10px;
         }
 
-        .result {
-            background: rgba(255, 255, 255, 0.95);
+        .gifts-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .gift-cell {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .gift-cell:active {
+            transform: scale(0.95);
+        }
+
+        .gift-cell .emoji {
+            font-size: 2.5em;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .gift-cell .price {
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            animation: modalSlideIn 0.3s;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .modal-content p {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px solid white;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+            display: inline-block;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-color: #FFD700;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-color: #10b981;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-color: #ef4444;
+        }
+
+        .inventory-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+
+        .inventory-item {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .inventory-item .info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .inventory-item .emoji {
+            font-size: 2em;
+        }
+
+        .result-animation {
+            font-size: 5em;
+            animation: popIn 0.5s;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 20px;
-            margin-top: 20px;
-            font-size: 1.3em;
-            font-weight: bold;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .result.show {
-            opacity: 1;
-        }
-
-        .result.win {
-            color: #10b981;
-        }
-
-        .result.lose {
-            color: #ef4444;
-        }
-
-        .reset-btn {
-            margin-top: 20px;
-            background: rgba(255, 255, 255, 0.2);
+            text-align: center;
             color: white;
-            padding: 12px 30px;
-            font-size: 1em;
         }
 
-        .streak {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #FFD700;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .nft-cells {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .nft-cell {
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
-            color: white;
-            padding: 10px 20px;
             border-radius: 20px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .nft-cell:active {
+            transform: scale(0.98);
+        }
+
+        .nft-cell .title {
+            color: white;
+            font-size: 1.3em;
             font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .nft-cell .chance {
+            color: #FFD700;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .nft-cell .cost {
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .page {
             display: none;
         }
 
-        .streak.show {
+        .page.active {
             display: block;
-            animation: bounce 0.5s;
+            animation: fadeIn 0.3s;
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            border: 2px solid white;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        .back-btn.active {
+            display: flex;
         }
     </style>
 </head>
 <body>
-    <div class="streak" id="streak">🔥 Серия: <span id="streakCount">0</span></div>
+    <!-- Фон со звёздами -->
+    <div class="stars-bg" id="starsBg"></div>
+
+    <!-- Кнопка назад -->
+    <div class="back-btn" id="backBtn" onclick="goBack()">←</div>
 
     <div class="container">
-        <h1>🪙 Орёл и Решка</h1>
+        <!-- ГЛАВНАЯ СТРАНИЦА -->
+        <div class="page active" id="mainPage">
+            <div class="header">
+                <h1>🎁 Vitcoin Gifts</h1>
+                <div class="balance">
+                    <span>⭐</span>
+                    <span id="starsBalance">0</span>
+                </div>
+            </div>
 
-        <div class="stats">
-            <div class="stat-item">
-                <div class="stat-label">Побед</div>
-                <div class="stat-value" id="wins">0</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">Поражений</div>
-                <div class="stat-value" id="losses">0</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">Всего</div>
-                <div class="stat-value" id="total">0</div>
+            <div class="menu-grid">
+                <button class="menu-btn" onclick="showOpenGift()">
+                    <span class="emoji">🎁</span>
+                    Открыть подарок
+                </button>
+                <button class="menu-btn" onclick="showPage('freeNftPage')">
+                    <span class="emoji">💎</span>
+                    Бесплатный NFT
+                </button>
+                <button class="menu-btn" onclick="showPage('giftsPage')">
+                    <span class="emoji">🎰</span>
+                    Подарки
+                </button>
+                <button class="menu-btn" onclick="showPage('nftCellsPage')">
+                    <span class="emoji">💠</span>
+                    NFT ячейки
+                </button>
+                <button class="menu-btn" onclick="showPage('inventoryPage')">
+                    <span class="emoji">🎒</span>
+                    Инвентарь
+                </button>
+                <button class="menu-btn" onclick="showPage('statsPage')">
+                    <span class="emoji">📊</span>
+                    Статистика
+                </button>
             </div>
         </div>
 
-        <div class="coin-container">
-            <div class="coin" id="coin">
-                <div class="coin-side heads">🦅</div>
-                <div class="coin-side tails">👑</div>
+        <!-- СТРАНИЦА ПОДАРКОВ -->
+        <div class="page" id="giftsPage">
+            <div class="header">
+                <h2 style="color: white; margin-bottom: 10px;">🎁 Ячейки подарков</h2>
+                <p style="color: white; opacity: 0.9;">Шанс выигрыша: 40%</p>
+            </div>
+
+            <div class="gifts-grid" id="giftsGrid"></div>
+        </div>
+
+        <!-- СТРАНИЦА NFT ЯЧЕЕК -->
+        <div class="page" id="nftCellsPage">
+            <div class="header">
+                <h2 style="color: white; margin-bottom: 10px;">💎 NFT ячейки</h2>
+                <p style="color: white; opacity: 0.9;">Получите NFT за 400⭐</p>
+            </div>
+
+            <div class="nft-cells">
+                <div class="nft-cell" onclick="openNftCell(1, 5, 0.8)">
+                    <div class="title">Ячейка 1</div>
+                    <div class="chance">Шанс: 1%</div>
+                    <div class="cost">Цена: 5⭐</div>
+                </div>
+                <div class="nft-cell" onclick="openNftCell(2, 50, 8)">
+                    <div class="title">Ячейка 2</div>
+                    <div class="chance">Шанс: 10%</div>
+                    <div class="cost">Цена: 50⭐</div>
+                </div>
+                <div class="nft-cell" onclick="openNftCell(3, 175, 36)">
+                    <div class="title">Ячейка 3</div>
+                    <div class="chance">Шанс: 45%</div>
+                    <div class="cost">Цена: 175⭐</div>
+                </div>
             </div>
         </div>
 
-        <div class="buttons">
-            <button class="btn-heads" id="headsBtn" onclick="makeChoice('heads')">
-                🦅 Орёл
+        <!-- СТРАНИЦА ИНВЕНТАРЯ -->
+        <div class="page" id="inventoryPage">
+            <div class="header">
+                <h2 style="color: white;">🎒 Инвентарь</h2>
+            </div>
+
+            <div class="inventory-list" id="inventoryList"></div>
+        </div>
+
+        <!-- СТРАНИЦА СТАТИСТИКИ -->
+        <div class="page" id="statsPage">
+            <div class="header">
+                <h2 style="color: white;">📊 Статистика</h2>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="value" id="totalOpened">0</div>
+                    <div class="label">Открыто подарков</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="giftsWon">0</div>
+                    <div class="label">Выиграно подарков</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="nftWon">0</div>
+                    <div class="label">NFT выиграно</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="totalStars">0</div>
+                    <div class="label">Всего звёзд</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА БЕСПЛАТНОГО NFT -->
+        <div class="page" id="freeNftPage">
+            <div class="header">
+                <h2 style="color: white; margin-bottom: 10px;">💎 Бесплатный NFT</h2>
+                <p style="color: white; opacity: 0.9;">Шанс: 0.1%</p>
+                <p style="color: white; opacity: 0.9;" id="freeNftTimer">Доступно сейчас!</p>
+            </div>
+
+            <button class="btn btn-primary" onclick="openFreeNft()" style="width: 100%; padding: 20px; font-size: 1.3em; margin-top: 20px;">
+                🎁 Получить бесплатный шанс
             </button>
-            <button class="btn-tails" id="tailsBtn" onclick="makeChoice('tails')">
-                👑 Решка
-            </button>
         </div>
+    </div>
 
-        <div class="result" id="result"></div>
+    <!-- КОНТЕЙНЕР КОЛЕСА -->
+    <div class="wheel-container" id="wheelContainer">
+        <div class="wheel-pointer"></div>
+        <div class="wheel" id="wheel">
+            <div class="wheel-segment" style="transform: rotate(0deg);"><span>✅</span></div>
+            <div class="wheel-segment" style="transform: rotate(90deg);"><span>❌</span></div>
+            <div class="wheel-segment" style="transform: rotate(180deg);"><span>✅</span></div>
+            <div class="wheel-segment" style="transform: rotate(270deg);"><span>❌</span></div>
+            <div class="wheel-center">🎁</div>
+        </div>
+    </div>
 
-        <button class="reset-btn" onclick="resetStats()">🔄 Сбросить статистику</button>
+    <!-- МОДАЛЬНЫЕ ОКНА -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <h2 id="confirmTitle">Подтверждение</h2>
+            <p id="confirmText"></p>
+            <button class="btn btn-success" onclick="confirmAction()">✅ Да</button>
+            <button class="btn btn-danger" onclick="closeModal()">❌ Нет</button>
+        </div>
+    </div>
+
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <div class="result-animation" id="resultEmoji"></div>
+            <h2 id="resultTitle"></h2>
+            <p id="resultText"></p>
+            <button class="btn btn-primary" onclick="closeResultModal()">OK</button>
+        </div>
     </div>
 
     <script>
@@ -258,140 +614,381 @@
         tg.expand();
         tg.MainButton.hide();
 
-        let stats = {
-            wins: 0,
-            losses: 0,
-            total: 0,
-            currentStreak: 0,
-            bestStreak: 0
+        // Данные игрока
+        let gameData = {
+            stars: 1000, // Для теста
+            inventory: [],
+            stats: {
+                totalOpened: 0,
+                giftsWon: 0,
+                nftWon: 0,
+                totalStars: 0
+            },
+            lastFreeNft: null
         };
 
-        // Загрузка статистики
-        function loadStats() {
-            const saved = localStorage.getItem('coinFlipStats');
-            if (saved) {
-                stats = JSON.parse(saved);
-                updateStatsDisplay();
-            }
-        }
+        // Подарки
+        const GIFTS = [
+            {name: "Алмаз", emoji: "💎", cost: 45, sell: 100},
+            {name: "Кубок", emoji: "🏆", cost: 45, sell: 100},
+            {name: "Ракета", emoji: "🚀", cost: 25, sell: 50},
+            {name: "Шампанское", emoji: "🍾", cost: 25, sell: 50},
+            {name: "Торт", emoji: "🎂", cost: 25, sell: 50},
+            {name: "Розы", emoji: "🌹", cost: 12, sell: 25},
+            {name: "Подарок", emoji: "🎁", cost: 12, sell: 25},
+            {name: "Сердечко", emoji: "💖", cost: 12, sell: 15},
+            {name: "Мишка", emoji: "🧸", cost: 8, sell: 15}
+        ];
 
-        // Сохранение статистики
-        function saveStats() {
-            localStorage.setItem('coinFlipStats', JSON.stringify(stats));
-        }
-
-        // Обновление отображения статистики
-        function updateStatsDisplay() {
-            document.getElementById('wins').textContent = stats.wins;
-            document.getElementById('losses').textContent = stats.losses;
-            document.getElementById('total').textContent = stats.total;
-            
-            if (stats.currentStreak >= 3) {
-                document.getElementById('streakCount').textContent = stats.currentStreak;
-                document.getElementById('streak').classList.add('show');
-            } else {
-                document.getElementById('streak').classList.remove('show');
-            }
-        }
-
-        // Основная функция выбора
-        function makeChoice(userChoice) {
-            const coin = document.getElementById('coin');
-            const result = document.getElementById('result');
-            const buttons = document.querySelectorAll('.buttons button');
-            
-            // Блокируем кнопки
-            buttons.forEach(btn => btn.disabled = true);
-            
-            // Скрываем предыдущий результат
-            result.classList.remove('show');
-            
-            // Случайный результат
-            const coinResult = Math.random() < 0.5 ? 'heads' : 'tails';
-            
-            // Анимация броска
-            coin.classList.add('flipping');
-            
-            setTimeout(() => {
-                coin.classList.remove('flipping');
-                
-                // Поворачиваем монету к нужной стороне
-                if (coinResult === 'tails') {
-                    coin.style.transform = 'rotateY(180deg)';
-                } else {
-                    coin.style.transform = 'rotateY(0deg)';
-                }
-                
-                // Показываем результат
-                setTimeout(() => {
-                    const win = userChoice === coinResult;
-                    
-                    stats.total++;
-                    if (win) {
-                        stats.wins++;
-                        stats.currentStreak++;
-                        if (stats.currentStreak > stats.bestStreak) {
-                            stats.bestStreak = stats.currentStreak;
-                        }
-                        result.textContent = '🎉 Вы выиграли!';
-                        result.className = 'result show win';
-                        
-                        // Вибрация при победе
-                        if (tg.HapticFeedback) {
-                            tg.HapticFeedback.notificationOccurred('success');
-                        }
-                    } else {
-                        stats.losses++;
-                        stats.currentStreak = 0;
-                        result.textContent = '😢 Вы проиграли!';
-                        result.className = 'result show lose';
-                        
-                        // Вибрация при поражении
-                        if (tg.HapticFeedback) {
-                            tg.HapticFeedback.notificationOccurred('error');
-                        }
-                    }
-                    
-                    const coinName = coinResult === 'heads' ? 'Орёл 🦅' : 'Решка 👑';
-                    result.textContent += ` Выпало: ${coinName}`;
-                    
-                    updateStatsDisplay();
-                    saveStats();
-                    
-                    // Разблокируем кнопки
-                    buttons.forEach(btn => btn.disabled = false);
-                }, 300);
-                
-            }, 1000);
-        }
-
-        // Сброс статистики
-        function resetStats() {
-            if (confirm('Вы уверены, что хотите сбросить статистику?')) {
-                stats = {
-                    wins: 0,
-                    losses: 0,
-                    total: 0,
-                    currentStreak: 0,
-                    bestStreak: 0
-                };
-                updateStatsDisplay();
-                saveStats();
-                document.getElementById('result').classList.remove('show');
-                
-                if (tg.HapticFeedback) {
-                    tg.HapticFeedback.notificationOccurred('warning');
-                }
-            }
-        }
+        let currentAction = null;
+        let currentPage = 'mainPage';
 
         // Инициализация
-        loadStats();
-
-        // Настройка темы Telegram
-        if (tg.colorScheme === 'dark') {
-            document.body.style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)';
+        function init() {
+            loadData();
+            updateUI();
+            renderGifts();
+            createStars();
+            checkFreeNftTimer();
+            setInterval(checkFreeNftTimer, 1000);
         }
+
+        // Создание звёзд на фоне
+        function createStars() {
+            const container = document.getElementById('starsBg');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(star);
+            }
+        }
+
+        // Сохранение/загрузка данных
+        function saveData() {
+            localStorage.setItem('vitcoinGameData', JSON.stringify(gameData));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('vitcoinGameData');
+            if (saved) {
+                gameData = JSON.parse(saved);
+            }
+        }
+
+        // Обновление UI
+        function updateUI() {
+            document.getElementById('starsBalance').textContent = gameData.stars;
+            document.getElementById('totalOpened').textContent = gameData.stats.totalOpened;
+            document.getElementById('giftsWon').textContent = gameData.stats.giftsWon;
+            document.getElementById('nftWon').textContent = gameData.stats.nftWon;
+            document.getElementById('totalStars').textContent = gameData.stats.totalStars;
+            updateInventory();
+        }
+
+        // Рендер подарков
+        function renderGifts() {
+            const grid = document.getElementById('giftsGrid');
+            grid.innerHTML = '';
+            GIFTS.forEach(gift => {
+                const cell = document.createElement('div');
+                cell.className = 'gift-cell';
+                cell.innerHTML = `
+                    <span class="emoji">${gift.emoji}</span>
+                    <div class="price">${gift.cost}⭐</div>
+                `;
+                cell.onclick = () => openGiftCell(gift);
+                grid.appendChild(cell);
+            });
+        }
+
+        // Переключение страниц
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            currentPage = pageId;
+            document.getElementById('backBtn').classList.add('active');
+            
+            if (pageId === 'inventoryPage') updateInventory();
+        }
+
+        function goBack() {
+            showPage('mainPage');
+            document.getElementById('backBtn').classList.remove('active');
+        }
+
+        // Открытие основного подарка
+        function showOpenGift() {
+            if (gameData.stars < 25) {
+                showResult('❌', 'Недостаточно звёзд!', 'Нужно 25⭐');
+                vibrate('error');
+                return;
+            }
+
+            document.getElementById('confirmTitle').textContent = '🎁 Открыть подарок?';
+            document.getElementById('confirmText').innerHTML = `
+                <b>Стоимость:</b> 25⭐<br>
+                <b>Ваш баланс:</b> ${gameData.stars}⭐
+            `;
+            currentAction = 'openGift';
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function confirmAction() {
+            closeModal();
+
+            if (currentAction === 'openGift') {
+                processOpenGift();
+            }
+        }
+
+        function processOpenGift() {
+            gameData.stars -= 25;
+            gameData.stats.totalOpened++;
+            
+            // Показываем колесо
+            showWheel(() => {
+                const rand = Math.random() * 100;
+                
+                // Шансы
+                if (rand < 0.5) { // NFT 0.5%
+                    winNFT();
+                } else if (rand < 5.5) { // 500 звезд 1.5%
+                    winStars(500);
+                } else if (rand < 8.5) { // 100 звезд 3%
+                    winStars(100);
+                } else if (rand < 13.5) { // 50 звезд 5%
+                    winStars(50);
+                } else if (rand < 28.5) { // 10 звезд 15%
+                    winStars(10);
+                } else if (rand < 43.5) { // 5 звезд 15%
+                    winStars(5);
+                } else if (rand < 63.5) { // 3 звезды 20%
+                    winStars(3);
+                } else if (rand < 100) { // 1 звезда 40%
+                    winStars(1);
+                } else { // Проигрыш
+                    showResult('😔', 'Не повезло', 'Попробуйте ещё раз!');
+                    vibrate('error');
+                }
+
+                updateUI();
+                saveData();
+            });
+        }
+
+        // Колесо
+        function showWheel(callback) {
+            const container = document.getElementById('wheelContainer');
+            const wheel = document.getElementById('wheel');
+            
+            container.classList.add('active');
+            wheel.style.transform = 'rotate(0deg)';
+
+            setTimeout(() => {
+                const spins = 5 + Math.random() * 3;
+                const degrees = spins * 360;
+                wheel.style.transform = `rotate(${degrees}deg)`;
+
+                setTimeout(() => {
+                    container.classList.remove('active');
+                    callback();
+                }, 3000);
+            }, 100);
+        }
+
+        // Победы
+        function winStars(amount) {
+            gameData.stars += amount;
+            gameData.stats.totalStars += amount;
+            showResult('⭐', `Выигрыш: ${amount}⭐`, `Ваш баланс: ${gameData.stars}⭐`);
+            vibrate('success');
+        }
+
+        function winNFT() {
+            gameData.inventory.push({
+                id: Date.now(),
+                name: 'NFT',
+                emoji: '💎',
+                value: 400
+            });
+            gameData.stats.nftWon++;
+            showResult('💎', 'ПОЗДРАВЛЯЕМ!', 'Вы выиграли NFT!<br>Стоимость: 400⭐');
+            vibrate('success');
+        }
+
+        // Открытие ячейки подарка
+        function openGiftCell(gift) {
+            if (gameData.stars < gift.cost) {
+                showResult('❌', 'Недостаточно звёзд!', `Нужно ${gift.cost}⭐`);
+                vibrate('error');
+                return;
+            }
+
+            gameData.stars -= gift.cost;
+
+            showWheel(() => {
+                if (Math.random() * 100 < 40) {
+                    gameData.inventory.push({
+                        id: Date.now(),
+                        name: gift.name,
+                        emoji: gift.emoji,
+                        value: gift.sell
+                    });
+                    gameData.stats.giftsWon++;
+                    showResult(gift.emoji, 'Выигрыш!', `${gift.name}<br>Цена продажи: ${gift.sell}⭐`);
+                    vibrate('success');
+                } else {
+                    showResult('😔', 'Не повезло', 'Попробуйте ещё раз!');
+                    vibrate('error');
+                }
+
+                updateUI();
+                saveData();
+            });
+        }
+
+        // NFT ячейки
+        function openNftCell(cellNum, cost, realChance) {
+            if (gameData.stars < cost) {
+                showResult('❌', 'Недостаточно звёзд!', `Нужно ${cost}⭐`);
+                vibrate('error');
+                return;
+            }
+
+            gameData.stars -= cost;
+
+            showWheel(() => {
+                if (Math.random() * 100 < realChance) {
+                    winNFT();
+                } else {
+                    showResult('😔', 'NFT не выпал', 'Попробуйте ещё раз!');
+                    vibrate('error');
+                }
+
+                updateUI();
+                saveData();
+            });
+        }
+
+        // Бесплатный NFT
+        function checkFreeNftTimer() {
+            const now = Date.now();
+            if (!gameData.lastFreeNft) {
+                document.getElementById('freeNftTimer').textContent = 'Доступно сейчас!';
+                return;
+            }
+
+            const diff = 24 * 60 * 60 * 1000 - (now - gameData.lastFreeNft);
+            if (diff <= 0) {
+                document.getElementById('freeNftTimer').textContent = 'Доступно сейчас!';
+            } else {
+                const hours = Math.floor(diff / (60 * 60 * 1000));
+                const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+                document.getElementById('freeNftTimer').textContent = `Доступно через ${hours}ч ${minutes}мин`;
+            }
+        }
+
+        function openFreeNft() {
+            const now = Date.now();
+            if (gameData.lastFreeNft && (now - gameData.lastFreeNft) < 24 * 60 * 60 * 1000) {
+                const diff = 24 * 60 * 60 * 1000 - (now - gameData.lastFreeNft);
+                const hours = Math.floor(diff / (60 * 60 * 1000));
+                const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+                showResult('⏳', 'Слишком рано!', `Доступно через ${hours}ч ${minutes}мин`);
+                vibrate('error');
+                return;
+            }
+
+            gameData.lastFreeNft = now;
+
+            showWheel(() => {
+                if (Math.random() * 100 < 0.1) {
+                    winNFT();
+                } else {
+                    showResult('🎁', 'Использовано', 'Следующий через 24 часа');
+                    vibrate('light');
+                }
+
+                updateUI();
+                saveData();
+            });
+        }
+
+        // Инвентарь
+        function updateInventory() {
+            const list = document.getElementById('inventoryList');
+            
+            if (gameData.inventory.length === 0) {
+                list.innerHTML = '<div style="text-align: center; color: white; padding: 40px;">📭 Инвентарь пуст</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            gameData.inventory.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'inventory-item';
+                div.innerHTML = `
+                    <div class="info">
+                        <span class="emoji">${item.emoji}</span>
+                        <div>
+                            <div style="font-weight: bold;">${item.name}</div>
+                            <div style="color: #FFD700;">${item.value}⭐</div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-success" onclick="sellItem(${index})" style="margin-right: 5px;">💰 Продать</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function sellItem(index) {
+            const item = gameData.inventory[index];
+            gameData.stars += item.value;
+            gameData.inventory.splice(index, 1);
+            updateUI();
+            saveData();
+            showResult('✅', 'Продано!', `+${item.value}⭐`);
+            vibrate('success');
+        }
+
+        // Модальные окна
+        function showResult(emoji, title, text) {
+            document.getElementById('resultEmoji').textContent = emoji;
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultText').innerHTML = text;
+            document.getElementById('resultModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultModal').classList.remove('active');
+        }
+
+        // Вибрация
+        function vibrate(type) {
+            if (!tg.HapticFeedback) return;
+            
+            if (type === 'success') {
+                tg.HapticFeedback.notificationOccurred('success');
+            } else if (type === 'error') {
+                tg.HapticFeedback.notificationOccurred('error');
+            } else {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        }
+
+        // Запуск
+        init();
     </script>
 </body>
 </html>
