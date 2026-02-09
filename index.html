@@ -1,237 +1,1002 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Crypto Tracker</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Crypto Tracker</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{
-font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-background:#0f1220;color:#fff;overflow-x:hidden
-}
-.container{max-width:600px;margin:auto;padding:15px}
-.header{background:#1b1f3b;border-radius:20px;padding:20px;margin-bottom:15px}
-h1{font-size:22px}
-.controls{display:flex;gap:10px;margin:15px 0}
-.search-box{
-flex:1;padding:12px;border-radius:12px;
-border:none;background:#1b1f3b;color:#fff
-}
-.refresh-btn{
-width:46px;height:46px;border-radius:50%;
-border:none;background:#667eea;color:#fff;font-size:20px
-}
-.category-tabs{display:flex;gap:8px;overflow-x:auto;margin-bottom:15px}
-.category-tab{
-padding:10px 16px;background:#1b1f3b;border-radius:12px;
-white-space:nowrap;cursor:pointer
-}
-.category-tab.active{background:#667eea}
-.crypto-grid{display:grid;gap:12px}
-.crypto-card{
-background:#1b1f3b;border-radius:18px;padding:15px;cursor:pointer
-}
-.crypto-header{display:flex;align-items:center;margin-bottom:10px}
-.crypto-icon img{width:40px;height:40px;border-radius:50%}
-.crypto-info{flex:1;margin-left:10px}
-.crypto-name{font-weight:bold}
-.crypto-symbol{font-size:12px;opacity:.7}
-.crypto-price{font-size:18px;font-weight:bold;margin-bottom:10px}
-.crypto-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.stat{background:#0f1220;padding:8px;border-radius:10px;text-align:center;font-size:12px}
-.positive{color:#10b981}
-.negative{color:#ef4444}
-.bottom-nav{
-position:fixed;bottom:0;left:0;right:0;
-background:#1b1f3b;display:flex;justify-content:space-around;
-padding:10px
-}
-.nav-btn{background:none;border:none;color:#aaa;font-size:20px}
-.nav-btn.active{color:#667eea}
-.page{display:none}
-.page.active{display:block}
-.modal{
-position:fixed;inset:0;background:rgba(0,0,0,.8);
-display:none;align-items:center;justify-content:center
-}
-.modal.active{display:flex}
-.modal-content{
-background:#1b1f3b;border-radius:20px;padding:20px;width:90%;max-width:500px
-}
-.chart{
-position:relative;height:180px;background:#0f1220;border-radius:12px;margin-top:15px
-}
-.chart-dot{
-position:absolute;width:4px;height:4px;background:#667eea;border-radius:50%
-}
-</style>
+    :root[data-theme="dark"] {
+      --bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      --bg-secondary: rgba(255, 255, 255, 0.05);
+      --bg-card: rgba(255, 255, 255, 0.08);
+      --bg-hover: rgba(255, 255, 255, 0.12);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --shadow: rgba(0, 0, 0, 0.3);
+      --accent: #667eea;
+      --accent-glow: rgba(102, 126, 234, 0.3);
+    }
+
+    :root[data-theme="light"] {
+      --bg-primary: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      --bg-secondary: rgba(0, 0, 0, 0.03);
+      --bg-card: rgba(255, 255, 255, 0.9);
+      --bg-hover: rgba(0, 0, 0, 0.05);
+      --text-primary: #1a1a2e;
+      --text-secondary: rgba(0, 0, 0, 0.6);
+      --border-color: rgba(0, 0, 0, 0.1);
+      --shadow: rgba(0, 0, 0, 0.1);
+      --accent: #667eea;
+      --accent-glow: rgba(102, 126, 234, 0.2);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+    }
+
+    .particles { position: fixed; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; }
+    .particle { position: absolute; background: var(--accent); border-radius: 50%; opacity: 0.3; animation: float 20s infinite; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      25% { transform: translateY(-100px) translateX(50px); }
+      50% { transform: translateY(-50px) translateX(-50px); }
+      75% { transform: translateY(-150px) translateX(100px); }
+    }
+
+    .container { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+
+    .header {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border-radius: 25px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px var(--shadow);
+      border: 1px solid var(--border-color);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      animation: pulse 4s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.1); } }
+
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, var(--accent) 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .market-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
+    .summary-card {
+      background: var(--bg-secondary);
+      padding: 15px;
+      border-radius: 15px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+    }
+    .summary-label { font-size: 0.85em; color: var(--text-secondary); margin-bottom: 8px; }
+    .summary-value { font-size: 1.3em; font-weight: bold; color: var(--accent); }
+
+    .controls { display: flex; gap: 10px; margin-bottom: 20px; }
+    .search-box {
+      flex: 1;
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 15px;
+      padding: 15px 20px;
+      font-size: 1em;
+      color: var(--text-primary);
+      backdrop-filter: blur(20px);
+      transition: all 0.3s;
+    }
+    .search-box:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
+    .search-box::placeholder { color: var(--text-secondary); }
+
+    .refresh-btn {
+      background: var(--accent);
+      border: none;
+      color: white;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 1.5em;
+      cursor: pointer;
+      box-shadow: 0 5px 20px var(--accent-glow);
+      transition: all 0.3s;
+    }
+    .refresh-btn:active { transform: scale(0.9) rotate(180deg); }
+    .refresh-btn.spinning { animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    .category-tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px; }
+    .category-tabs::-webkit-scrollbar { height: 4px; }
+    .category-tabs::-webkit-scrollbar-track { background: var(--bg-secondary); border-radius: 2px; }
+    .category-tabs::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+    .category-tab {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px 20px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+      user-select: none;
+    }
+    .category-tab:active { transform: scale(0.95); }
+    .category-tab.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+    .crypto-grid { display: grid; gap: 15px; margin-bottom: 80px; }
+
+    .crypto-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .crypto-card:hover { background: var(--bg-hover); transform: translateY(-5px); box-shadow: 0 15px 40px var(--shadow); }
+    .crypto-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--accent) 0%, #764ba2 100%);
+      transform: scaleX(0); transition: transform 0.3s;
+    }
+    .crypto-card:hover::before { transform: scaleX(1); }
+
+    .crypto-header { display: flex; align-items: center; margin-bottom: 15px; }
+    .crypto-icon {
+      width: 50px; height: 50px; border-radius: 50%;
+      background: var(--bg-secondary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5em; margin-right: 15px;
+      box-shadow: 0 5px 15px var(--accent-glow);
+      overflow: hidden;
+    }
+    .crypto-icon img { width: 100%; height: 100%; object-fit: cover; }
+    .crypto-info { flex: 1; }
+    .crypto-name { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
+    .crypto-symbol { color: var(--text-secondary); font-size: 0.9em; }
+
+    .crypto-price { font-size: 1.5em; font-weight: bold; margin-bottom: 10px; }
+
+    .crypto-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .stat { background: var(--bg-secondary); padding: 10px; border-radius: 10px; text-align: center; }
+    .stat-label { font-size: 0.75em; color: var(--text-secondary); margin-bottom: 5px; }
+    .stat-value { font-weight: bold; font-size: 0.9em; }
+    .stat-value.positive { color: #10b981; }
+    .stat-value.negative { color: #ef4444; }
+
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border-color);
+      padding: 15px;
+      display: flex;
+      justify-content: space-around;
+      z-index: 100;
+      box-shadow: 0 -5px 20px var(--shadow);
+    }
+    .nav-btn {
+      background: transparent; border: none;
+      color: var(--text-secondary);
+      font-size: 1.5em;
+      cursor: pointer;
+      transition: all 0.3s;
+      padding: 10px 20px;
+      border-radius: 15px;
+    }
+    .nav-btn.active { color: var(--accent); background: var(--bg-secondary); }
+    .nav-btn:active { transform: scale(0.9); }
+
+    .page { display: none; }
+    .page.active { display: block; animation: fadeIn 0.3s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .settings-section {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 25px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+    }
+    .settings-title { font-size: 1.3em; font-weight: bold; margin-bottom: 20px; color: var(--text-primary); }
+    .setting-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px; background: var(--bg-secondary);
+      border-radius: 15px; margin-bottom: 15px; cursor: pointer; transition: all 0.3s;
+    }
+    .setting-item:hover { background: var(--bg-hover); }
+    .setting-info { flex: 1; }
+    .setting-label { font-weight: 600; margin-bottom: 5px; }
+    .setting-desc { font-size: 0.85em; color: var(--text-secondary); }
+
+    .theme-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+    .theme-option {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-color);
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .theme-option:active { transform: scale(0.95); }
+    .theme-option.active { border-color: var(--accent); background: var(--accent-glow); }
+    .theme-icon { font-size: 3em; margin-bottom: 10px; }
+    .theme-name { font-weight: 600; }
+
+    .toggle-switch {
+      position: relative; width: 60px; height: 30px;
+      background: var(--bg-secondary);
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 2px solid var(--border-color);
+    }
+    .toggle-switch.active { background: var(--accent); border-color: var(--accent); }
+    .toggle-slider {
+      position: absolute; width: 22px; height: 22px;
+      background: white; border-radius: 50%;
+      top: 2px; left: 2px; transition: all 0.3s;
+      box-shadow: 0 2px 5px var(--shadow);
+    }
+    .toggle-switch.active .toggle-slider { left: 32px; }
+
+    .modal {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none; align-items: center; justify-content: center;
+      z-index: 1000; padding: 20px; backdrop-filter: blur(10px);
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border-radius: 30px;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      border: 1px solid var(--border-color);
+      animation: modalSlideIn 0.3s;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    @keyframes modalSlideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-title { font-size: 1.5em; font-weight: bold; }
+    .close-btn {
+      background: var(--bg-secondary);
+      border: none;
+      width: 35px; height: 35px;
+      border-radius: 50%;
+      font-size: 1.2em;
+      cursor: pointer;
+      color: var(--text-primary);
+      transition: all 0.3s;
+    }
+    .close-btn:active { transform: scale(0.9); }
+
+    .chart-container {
+      width: 100%;
+      height: 200px;
+      background: var(--bg-secondary);
+      border-radius: 15px;
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .loading { text-align: center; padding: 40px; color: var(--text-secondary); }
+    .spinner {
+      border: 3px solid var(--bg-secondary);
+      border-top: 3px solid var(--accent);
+      border-radius: 50%;
+      width: 40px; height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    .watchlist-empty { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+    .watchlist-empty-icon { font-size: 5em; margin-bottom: 20px; opacity: 0.5; }
+
+    .mini-note { color: var(--text-secondary); font-size: 0.9em; line-height: 1.4; }
+    .link-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 12px 16px; border-radius: 12px;
+      background: var(--accent); color: #fff; text-decoration: none;
+      font-weight: 700; margin-top: 12px;
+      box-shadow: 0 5px 20px var(--accent-glow);
+    }
+  </style>
 </head>
-
 <body>
-<div class="container">
+  <div class="particles" id="particles"></div>
 
-<div class="page active" id="marketPage">
-<div class="header"><h1>📈 Crypto Tracker</h1></div>
+  <div class="container">
+    <!-- MARKET -->
+    <div class="page active" id="marketPage">
+      <div class="header">
+        <div class="header-content">
+          <h1>📈 Crypto Tracker</h1>
+          <div class="market-summary">
+            <div class="summary-card">
+              <div class="summary-label">Монет</div>
+              <div class="summary-value" id="coinsCount">—</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">Обновление</div>
+              <div class="summary-value" id="lastUpdate">—</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">Категория</div>
+              <div class="summary-value" id="currentCat">all</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-<div class="controls">
-<input id="searchInput" class="search-box" placeholder="Поиск">
-<button class="refresh-btn" onclick="loadMarket()">🔄</button>
-</div>
+      <div class="controls">
+        <input type="text" class="search-box" id="searchInput" placeholder="🔍 Поиск...">
+        <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">🔄</button>
+      </div>
 
-<div class="category-tabs">
-<div class="category-tab active" onclick="setCat('all',this)">Все</div>
-<div class="category-tab" onclick="setCat('top',this)">🔥 Топ</div>
-<div class="category-tab" onclick="setCat('nft',this)">🎨 NFT</div>
-<div class="category-tab" onclick="setCat('telegram',this)">📱 Telegram</div>
-<div class="category-tab" onclick="setCat('meme',this)">🐸 Мемы</div>
-</div>
+      <div class="category-tabs" id="categoryTabs">
+        <div class="category-tab active" data-cat="all">Все</div>
+        <div class="category-tab" data-cat="favorites">⭐ Избранное</div>
+        <div class="category-tab" data-cat="top">🔥 Топ</div>
+        <div class="category-tab" data-cat="telegram">📱 Telegram</div>
+        <div class="category-tab" data-cat="nft">🎨 NFT</div>
+        <div class="category-tab" data-cat="meme">🐸 Memes</div>
+        <div class="category-tab" data-cat="defi">💎 DeFi</div>
+        <div class="category-tab" data-cat="gaming">🎮 Gaming</div>
+      </div>
 
-<div class="crypto-grid" id="cryptoGrid"></div>
-</div>
+      <div class="crypto-grid" id="cryptoGrid">
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Загрузка данных...</p>
+        </div>
+      </div>
+    </div>
 
-<div class="page" id="settingsPage">
-<div class="header"><h1>⚙️ Настройки</h1></div>
-<p style="opacity:.7">Тема, уведомления — готово под расширение</p>
-</div>
+    <!-- WATCHLIST -->
+    <div class="page" id="watchlistPage">
+      <div class="header">
+        <div class="header-content">
+          <h1>⭐ Избранное</h1>
+        </div>
+      </div>
 
-</div>
+      <div class="crypto-grid" id="watchlistGrid">
+        <div class="watchlist-empty">
+          <div class="watchlist-empty-icon">⭐</div>
+          <h2>Избранное пусто</h2>
+          <p>Добавьте криптовалюты в избранное</p>
+        </div>
+      </div>
+    </div>
 
-<div class="bottom-nav">
-<button class="nav-btn active" onclick="switchPage('marketPage',this)">📊</button>
-<button class="nav-btn" onclick="switchPage('settingsPage',this)">⚙️</button>
-</div>
+    <!-- SETTINGS -->
+    <div class="page" id="settingsPage">
+      <div class="header">
+        <div class="header-content">
+          <h1>⚙️ Настройки</h1>
+        </div>
+      </div>
 
-<div class="modal" id="detailModal">
-<div class="modal-content">
-<h2 id="modalTitle"></h2>
-<div id="modalBody"></div>
-<button onclick="closeModal()" style="margin-top:15px;width:100%">Закрыть</button>
-</div>
-</div>
+      <div class="settings-section">
+        <div class="settings-title">🎨 Тема оформления</div>
+        <div class="theme-options">
+          <div class="theme-option active" id="darkTheme">
+            <div class="theme-icon">🌙</div>
+            <div class="theme-name">Тёмная</div>
+          </div>
+          <div class="theme-option" id="lightTheme">
+            <div class="theme-icon">☀️</div>
+            <div class="theme-name">Светлая</div>
+          </div>
+        </div>
+      </div>
 
-<script>
-const tg = window.Telegram.WebApp;
-tg.expand();
+      <div class="settings-section">
+        <div class="settings-title">🔔 Уведомления</div>
+        <div class="setting-item" data-setting="priceAlerts">
+          <div class="setting-info">
+            <div class="setting-label">Уведомления о цене</div>
+            <div class="setting-desc">Пока макет (можно подключить позже)</div>
+          </div>
+          <div class="toggle-switch" id="priceAlertsToggle"><div class="toggle-slider"></div></div>
+        </div>
 
-let category='all';
-let coins=[];
+        <div class="setting-item" data-setting="newsAlerts">
+          <div class="setting-info">
+            <div class="setting-label">Новости</div>
+            <div class="setting-desc">Пока макет (можно подключить позже)</div>
+          </div>
+          <div class="toggle-switch" id="newsAlertsToggle"><div class="toggle-slider"></div></div>
+        </div>
+      </div>
 
-const GROUPS={
-telegram:['toncoin','notcoin','gram'],
-nft:['apecoin','blur','looksrare','decentraland','the-sandbox'],
-meme:['pepe','dogecoin','shiba-inu','floki']
-};
+      <div class="settings-section">
+        <div class="settings-title">🧩 Telegram NFTs (Fragment)</div>
+        <div class="mini-note">
+          В одном HTML нельзя напрямую получить лоты Fragment из-за CORS и авторизации.
+          Нужен маленький прокси/бек (или MTProto на сервере). :contentReference[oaicite:2]{index=2}
+          <br><br>
+          Сейчас кнопка просто открывает Fragment. Если дашь прокси — я включу “реальные лоты внутри аппки”.
+        </div>
+        <a class="link-btn" href="https://fragment.com/" target="_blank">Открыть Fragment</a>
+      </div>
 
-async function loadMarket(){
-const r=await fetch(
-'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&price_change_percentage=24h'
-);
-const data=await r.json();
+      <div class="settings-section">
+        <div class="settings-title">ℹ️ О приложении</div>
+        <div class="setting-item" style="cursor:default">
+          <div class="setting-info">
+            <div class="setting-label">Версия</div>
+            <div class="setting-desc">1.1.0 (Real-time цены + NFT график)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-coins=data.map(c=>({
-id:c.id,
-name:c.name,
-symbol:c.symbol.toUpperCase(),
-price:c.current_price,
-change:c.price_change_percentage_24h||0,
-image:c.image,
-category:detectCategory(c.id)
-}));
+  <!-- NAV -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" data-page="marketPage">📊</button>
+    <button class="nav-btn" data-page="watchlistPage">⭐</button>
+    <button class="nav-btn" data-page="settingsPage">⚙️</button>
+  </div>
 
-render();
-}
+  <!-- MODAL -->
+  <div class="modal" id="detailModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">—</div>
+        <button class="close-btn" id="closeModalBtn">×</button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
 
-function detectCategory(id){
-if(GROUPS.telegram.includes(id))return'telegram';
-if(GROUPS.nft.includes(id))return'nft';
-if(GROUPS.meme.includes(id))return'meme';
-return'top';
-}
+  <script>
+    // Telegram
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.MainButton.hide();
 
-function render(){
-const grid=document.getElementById('cryptoGrid');
-const search=document.getElementById('searchInput').value.toLowerCase();
+    // App state
+    let appData = {
+      theme: 'dark',
+      watchlist: [], // coin ids (coingecko id)
+      settings: { priceAlerts: false, newsAlerts: false, currency: true },
+      currentCategory: 'all',
+      cryptoData: [],
+      lastUpdatedAt: 0
+    };
 
-let list=coins.filter(c=>
-(category==='all'||c.category===category)&&
-(c.name.toLowerCase().includes(search)||c.symbol.toLowerCase().includes(search))
-);
+    // Categories by CoinGecko IDs (твои: TON / Telegram / NFT / PEPE и т.д.)
+    const CAT = {
+      telegram: ['toncoin', 'notcoin', 'gram'],
+      nft: ['apecoin', 'decentraland', 'the-sandbox', 'blur', 'looksrare'],
+      meme: ['pepe', 'dogecoin', 'shiba-inu', 'floki'],
+      defi: ['uniswap', 'aave', 'curve-dao-token', 'chainlink', 'maker'],
+      gaming: ['axie-infinity', 'gala', 'the-sandbox']
+    };
 
-grid.innerHTML='';
-list.forEach(c=>{
-const cls=c.change>=0?'positive':'negative';
-grid.innerHTML+=`
-<div class="crypto-card" onclick="openDetail('${c.id}')">
-<div class="crypto-header">
-<div class="crypto-icon"><img src="${c.image}"></div>
-<div class="crypto-info">
-<div class="crypto-name">${c.name}</div>
-<div class="crypto-symbol">${c.symbol}</div>
-</div>
-</div>
-<div class="crypto-price">$${c.price.toLocaleString()}</div>
-<div class="crypto-stats">
-<div class="stat ${cls}">${c.change.toFixed(2)}%</div>
-<div class="stat">24ч</div>
-<div class="stat">${c.category}</div>
-</div>
-</div>`;
-});
-}
+    // Helpers
+    function nowTime() {
+      const d = new Date();
+      return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    function formatNumber(num) {
+      if (typeof num !== 'number' || Number.isNaN(num)) return '0.00';
+      if (num >= 1000) return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return num.toFixed(2);
+    }
+    function formatBig(n) {
+      if (typeof n !== 'number' || Number.isNaN(n)) return '0';
+      if (n >= 1e12) return (n / 1e12).toFixed(2) + 'T';
+      if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+      if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+      if (n >= 1e3) return (n / 1e3).toFixed(2) + 'K';
+      return String(Math.round(n));
+    }
 
-async function openDetail(id){
-const coin=coins.find(c=>c.id===id);
-document.getElementById('modalTitle').innerText=coin.name;
+    function detectCategory(coin) {
+      const id = coin.id;
+      if (CAT.telegram.includes(id)) return 'telegram';
+      if (CAT.nft.includes(id)) return 'nft';
+      if (CAT.meme.includes(id)) return 'meme';
+      if (CAT.defi.includes(id)) return 'defi';
+      if (CAT.gaming.includes(id)) return 'gaming';
+      if (coin.market_cap_rank && coin.market_cap_rank <= 15) return 'top';
+      return 'all';
+    }
 
-let chartHTML='';
-if(coin.category==='nft'){
-const r=await fetch(
-`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=1`
-);
-const data=await r.json();
-const prices=data.prices.map(p=>p[1]);
-const max=Math.max(...prices);
+    // API (CoinGecko)
+    async function fetchCryptoData() {
+      const url =
+        'https://api.coingecko.com/api/v3/coins/markets' +
+        '?vs_currency=usd' +
+        '&order=market_cap_desc' +
+        '&per_page=80' +
+        '&page=1' +
+        '&sparkline=false' +
+        '&price_change_percentage=24h';
 
-prices.forEach((p,i)=>{
-chartHTML+=`
-<div class="chart-dot" style="
-left:${i/prices.length*100}%;
-bottom:${p/max*100}%;
-"></div>`;
-});
-}
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('CoinGecko error');
 
-document.getElementById('modalBody').innerHTML=`
-<div><b>$${coin.price}</b> (${coin.change.toFixed(2)}%)</div>
-<div class="chart">${chartHTML}</div>
-`;
+      const data = await response.json();
 
-document.getElementById('detailModal').classList.add('active');
-}
+      // гарантируем что нужные “токены” будут в списке (если вдруг выпали из топ-80)
+      // (TON/PEPE обычно там, но на всякий)
+      return data.map(c => ({
+        id: c.id,
+        name: c.name,
+        symbol: String(c.symbol || '').toUpperCase(),
+        iconUrl: c.image,
+        price: c.current_price,
+        change24h: c.price_change_percentage_24h ?? 0,
+        volumeNum: c.total_volume ?? 0,
+        marketCapNum: c.market_cap ?? 0,
+        category: detectCategory(c)
+      }));
+    }
 
-function closeModal(){
-document.getElementById('detailModal').classList.remove('active');
-}
+    async function fetchChart24h(coinId) {
+      const url = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=1`;
+      const r = await fetch(url);
+      if (!r.ok) throw new Error('chart error');
+      const d = await r.json();
+      // d.prices: [ [timestamp, price], ... ]
+      return Array.isArray(d.prices) ? d.prices : [];
+    }
 
-function setCat(c,el){
-category=c;
-document.querySelectorAll('.category-tab').forEach(t=>t.classList.remove('active'));
-el.classList.add('active');
-render();
-}
+    // UI particles
+    function createParticles() {
+      const container = document.getElementById('particles');
+      if (!container || container.childNodes.length) return;
+      for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.width = Math.random() * 4 + 2 + 'px';
+        particle.style.height = particle.style.width;
+        particle.style.animationDelay = Math.random() * 20 + 's';
+        particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+        container.appendChild(particle);
+      }
+    }
 
-function switchPage(id,btn){
-document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-btn.classList.add('active');
-}
+    // Render grid
+    function createCryptoCard(crypto) {
+      const card = document.createElement('div');
+      card.className = 'crypto-card';
 
-loadMarket();
-setInterval(loadMarket,15000);
-</script>
+      const isInWatchlist = appData.watchlist.includes(crypto.id);
+      const changeClass = crypto.change24h >= 0 ? 'positive' : 'negative';
+      const changeSign = crypto.change24h >= 0 ? '+' : '';
+
+      card.innerHTML = `
+        <div class="crypto-header">
+          <div class="crypto-icon">
+            ${crypto.iconUrl ? `<img src="${crypto.iconUrl}" alt="${crypto.symbol}">` : '💠'}
+          </div>
+          <div class="crypto-info">
+            <div class="crypto-name">${crypto.name}</div>
+            <div class="crypto-symbol">${crypto.symbol} • ${crypto.category}</div>
+          </div>
+          <button data-fav="${crypto.id}" style="background: transparent; border: none; font-size: 1.5em; cursor: pointer;">
+            ${isInWatchlist ? '⭐' : '☆'}
+          </button>
+        </div>
+        <div class="crypto-price">$${formatNumber(crypto.price)}</div>
+        <div class="crypto-stats">
+          <div class="stat">
+            <div class="stat-label">24ч</div>
+            <div class="stat-value ${changeClass}">${changeSign}${Number(crypto.change24h).toFixed(2)}%</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Объём</div>
+            <div class="stat-value">$${formatBig(crypto.volumeNum)}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Кап.</div>
+            <div class="stat-value">$${formatBig(crypto.marketCapNum)}</div>
+          </div>
+        </div>
+      `;
+
+      // fav click
+      card.querySelector('button[data-fav]').addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleWatchlist(crypto.id);
+      });
+
+      // open detail
+      card.addEventListener('click', () => showDetail(crypto));
+
+      return card;
+    }
+
+    function filterCryptoData() {
+      let data = [...appData.cryptoData];
+
+      // Category filter
+      if (appData.currentCategory === 'favorites') {
+        data = data.filter(c => appData.watchlist.includes(c.id));
+      } else if (appData.currentCategory !== 'all') {
+        data = data.filter(c => c.category === appData.currentCategory);
+      }
+
+      // Search filter
+      const searchEl = document.getElementById('searchInput');
+      const q = (searchEl?.value || '').trim().toLowerCase();
+      if (q) {
+        data = data.filter(c =>
+          c.name.toLowerCase().includes(q) ||
+          c.symbol.toLowerCase().includes(q)
+        );
+      }
+
+      return data;
+    }
+
+    function renderCryptoGrid() {
+      const grid = document.getElementById('cryptoGrid');
+      const filtered = filterCryptoData();
+
+      document.getElementById('coinsCount').textContent = String(filtered.length);
+      document.getElementById('currentCat').textContent = appData.currentCategory;
+
+      if (!filtered.length) {
+        grid.innerHTML = '<div class="loading"><p>Нет результатов</p></div>';
+        return;
+      }
+
+      grid.innerHTML = '';
+      filtered.forEach(crypto => grid.appendChild(createCryptoCard(crypto)));
+    }
+
+    // Watchlist page
+    function updateWatchlist() {
+      const grid = document.getElementById('watchlistGrid');
+      const watchlistCryptos = appData.cryptoData.filter(c => appData.watchlist.includes(c.id));
+
+      if (watchlistCryptos.length === 0) {
+        grid.innerHTML = `
+          <div class="watchlist-empty">
+            <div class="watchlist-empty-icon">⭐</div>
+            <h2>Избранное пусто</h2>
+            <p>Добавьте криптовалюты в избранное</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = '';
+      watchlistCryptos.forEach(crypto => grid.appendChild(createCryptoCard(crypto)));
+    }
+
+    function toggleWatchlist(id) {
+      const idx = appData.watchlist.indexOf(id);
+      if (idx > -1) appData.watchlist.splice(idx, 1);
+      else appData.watchlist.push(id);
+
+      saveData();
+      renderCryptoGrid();
+      updateWatchlist();
+      vibrate('light');
+    }
+
+    // Detail modal + NFT chart
+    function drawSparkline(canvas, points) {
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      if (!points.length) {
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.font = '14px system-ui';
+        ctx.fillText('Нет данных графика', 10, 24);
+        return;
+      }
+
+      const prices = points.map(p => p[1]);
+      const minP = Math.min(...prices);
+      const maxP = Math.max(...prices);
+      const range = Math.max(1e-9, maxP - minP);
+
+      // background grid
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      for (let i = 1; i <= 4; i++) {
+        const y = (h / 5) * i;
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+
+      // line
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#667eea';
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        const x = (i / (points.length - 1)) * (w - 20) + 10;
+        const y = h - 10 - ((p[1] - minP) / range) * (h - 20);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      // last dot
+      const last = points[points.length - 1];
+      const lx = ( (points.length - 1) / (points.length - 1) ) * (w - 20) + 10;
+      const ly = h - 10 - ((last[1] - minP) / range) * (h - 20);
+      ctx.fillStyle = ctx.strokeStyle;
+      ctx.beginPath(); ctx.arc(lx, ly, 4, 0, Math.PI * 2); ctx.fill();
+
+      // labels
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.font = '12px system-ui';
+      ctx.fillText(`min $${formatNumber(minP)}`, 10, h - 8);
+      ctx.fillText(`max $${formatNumber(maxP)}`, 10, 14);
+    }
+
+    async function showDetail(crypto) {
+      document.getElementById('modalTitle').textContent = `${crypto.name} (${crypto.symbol})`;
+
+      const changeClass = crypto.change24h >= 0 ? 'positive' : 'negative';
+      const changeSign = crypto.change24h >= 0 ? '+' : '';
+
+      const isNFT = crypto.category === 'nft';
+
+      document.getElementById('modalBody').innerHTML = `
+        <div style="text-align:center; margin-bottom: 10px;">
+          <div style="font-size: 2.2em; font-weight: bold; margin-bottom: 6px;">
+            $${formatNumber(crypto.price)}
+          </div>
+          <div style="font-size: 1.1em;" class="${changeClass}">
+            ${changeSign}${Number(crypto.change24h).toFixed(2)}% (24ч)
+          </div>
+          <div class="mini-note" style="margin-top:8px">
+            ${isNFT ? '🎨 NFT: график 24ч (подъёмы/падения) ниже' : 'График показываем для NFT-токенов (можно включить для всех)'}
+          </div>
+        </div>
+
+        <div class="chart-container">
+          ${
+            isNFT
+              ? `<canvas id="spark" width="440" height="200" style="width:100%; height:100%;"></canvas>`
+              : `<div style="text-align:center; color: var(--text-secondary); padding: 20px;">📊 График включён для NFT</div>`
+          }
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px;">
+          <div class="stat">
+            <div class="stat-label">Объём (24ч)</div>
+            <div class="stat-value">$${formatBig(crypto.volumeNum)}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Рын. кап.</div>
+            <div class="stat-value">$${formatBig(crypto.marketCapNum)}</div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('detailModal').classList.add('active');
+      vibrate('light');
+
+      if (isNFT) {
+        try {
+          const points = await fetchChart24h(crypto.id);
+          const canvas = document.getElementById('spark');
+          // адаптируем под реальную ширину (чтобы не мыло)
+          const rect = canvas.getBoundingClientRect();
+          canvas.width = Math.max(320, Math.floor(rect.width * devicePixelRatio));
+          canvas.height = Math.max(180, Math.floor(rect.height * devicePixelRatio));
+          const ctx = canvas.getContext('2d');
+          ctx.scale(devicePixelRatio, devicePixelRatio);
+          // рисуем в “CSS пикселях”
+          const tmp = document.createElement('canvas');
+          tmp.width = Math.floor(rect.width);
+          tmp.height = Math.floor(rect.height);
+          drawSparkline(tmp, points);
+          // копируем
+          const tctx = tmp.getContext('2d');
+          ctx.drawImage(tmp, 0, 0);
+        } catch (e) {
+          const canvas = document.getElementById('spark');
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = 'rgba(255,255,255,0.7)';
+          ctx.font = '14px system-ui';
+          ctx.fillText('Ошибка загрузки графика', 10, 24);
+        }
+      }
+    }
+
+    function closeModal() { document.getElementById('detailModal').classList.remove('active'); }
+
+    // Market load + realtime refresh
+    async function loadMarket() {
+      const grid = document.getElementById('cryptoGrid');
+      grid.innerHTML = '<div class="loading"><div class="spinner"></div><p>Загрузка данных...</p></div>';
+
+      try {
+        const data = await fetchCryptoData();
+
+        // сохраняем избранное при обновлении
+        appData.cryptoData = data;
+        appData.lastUpdatedAt = Date.now();
+
+        document.getElementById('lastUpdate').textContent = nowTime();
+
+        renderCryptoGrid();
+        updateWatchlist();
+      } catch (e) {
+        grid.innerHTML = '<div class="loading"><p>Ошибка загрузки данных (CoinGecko)</p></div>';
+      }
+    }
+
+    function refreshData() {
+      const btn = document.getElementById('refreshBtn');
+      btn.classList.add('spinning');
+      loadMarket().finally(() => {
+        btn.classList.remove('spinning');
+        vibrate('success');
+      });
+    }
+
+    // Navigation
+    function switchPage(pageId, btn) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // обновляем избранное при заходе
+      if (pageId === 'watchlistPage') updateWatchlist();
+
+      vibrate('light');
+    }
+
+    // Theme
+    function setTheme(theme) {
+      appData.theme = theme;
+      applyTheme();
+      saveData();
+      vibrate('light');
+    }
+    function applyTheme() {
+      document.documentElement.setAttribute('data-theme', appData.theme);
+
+      document.getElementById('darkTheme').classList.toggle('active', appData.theme === 'dark');
+      document.getElementById('lightTheme').classList.toggle('active', appData.theme === 'light');
+    }
+
+    // Settings toggles
+    function toggleSetting(setting) {
+      appData.settings[setting] = !appData.settings[setting];
+      const toggle = document.getElementById(setting + 'Toggle');
+      if (toggle) toggle.classList.toggle('active', appData.settings[setting]);
+      saveData();
+      vibrate('light');
+    }
+
+    // Storage
+    function saveData() { localStorage.setItem('cryptoTrackerData', JSON.stringify(appData)); }
+    function loadData() {
+      const saved = localStorage.getItem('cryptoTrackerData');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          appData.theme = data.theme || 'dark';
+          appData.watchlist = Array.isArray(data.watchlist) ? data.watchlist : [];
+          appData.settings = data.settings || appData.settings;
+        } catch {}
+      }
+    }
+
+    // Haptics
+    function vibrate(type) {
+      if (!tg.HapticFeedback) return;
+      if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
+      else if (type === 'error') tg.HapticFeedback.notificationOccurred('error');
+      else tg.HapticFeedback.impactOccurred('light');
+    }
+
+    // Bind UI events (чтобы ничего не ломалось)
+    function bindEvents() {
+      // tabs
+      document.getElementById('categoryTabs').addEventListener('click', (e) => {
+        const tab = e.target.closest('.category-tab');
+        if (!tab) return;
+        const cat = tab.getAttribute('data-cat');
+        appData.currentCategory = cat;
+
+        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        renderCryptoGrid();
+        vibrate('light');
+      });
+
+      // search
+      document.getElementById('searchInput').addEventListener('input', () => renderCryptoGrid());
+
+      // nav
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchPage(btn.getAttribute('data-page'), btn));
+      });
+
+      // modal close
+      document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+      document.getElementById('detailModal').addEventListener('click', (e) => {
+        if (e.target.id === 'detailModal') closeModal();
+      });
+
+      // theme click
+      document.getElementById('darkTheme').addEventListener('click', () => setTheme('dark'));
+      document.getElementById('lightTheme').addEventListener('click', () => setTheme('light'));
+
+      // settings toggles
+      document.querySelectorAll('.setting-item[data-setting]').forEach(item => {
+        item.addEventListener('click', () => toggleSetting(item.getAttribute('data-setting')));
+      });
+
+      // initial toggles state
+      ['priceAlerts', 'newsAlerts'].forEach(k => {
+        const el = document.getElementById(k + 'Toggle');
+        if (el) el.classList.toggle('active', !!appData.settings[k]);
+      });
+    }
+
+    // Init
+    function init() {
+      loadData();
+      createParticles();
+      applyTheme();
+      bindEvents();
+      loadMarket();
+
+      // “реалтайм” = частый polling
+      setInterval(() => loadMarket(), 15000);
+    }
+
+    init();
+  </script>
 </body>
 </html>
