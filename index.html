@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vitcoin Gifts</title>
+    <title>Crypto Tracker</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -13,202 +13,474 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
+        :root[data-theme="dark"] {
+            --bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --bg-secondary: rgba(255, 255, 255, 0.05);
+            --bg-card: rgba(255, 255, 255, 0.08);
+            --bg-hover: rgba(255, 255, 255, 0.12);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow: rgba(0, 0, 0, 0.3);
+            --accent: #667eea;
+            --accent-glow: rgba(102, 126, 234, 0.3);
         }
 
-        .stars-bg {
+        :root[data-theme="light"] {
+            --bg-primary: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --bg-secondary: rgba(0, 0, 0, 0.03);
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --bg-hover: rgba(0, 0, 0, 0.05);
+            --text-primary: #1a1a2e;
+            --text-secondary: rgba(0, 0, 0, 0.6);
+            --border-color: rgba(0, 0, 0, 0.1);
+            --shadow: rgba(0, 0, 0, 0.1);
+            --accent: #667eea;
+            --accent-glow: rgba(102, 126, 234, 0.2);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .particles {
             position: fixed;
             width: 100%;
             height: 100%;
             overflow: hidden;
             z-index: 0;
+            pointer-events: none;
         }
 
-        .star {
+        .particle {
             position: absolute;
-            background: white;
+            background: var(--accent);
             border-radius: 50%;
-            animation: twinkle 3s infinite;
+            opacity: 0.3;
+            animation: float 20s infinite;
         }
 
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+            }
+            25% {
+                transform: translateY(-100px) translateX(50px);
+            }
+            50% {
+                transform: translateY(-50px) translateX(-50px);
+            }
+            75% {
+                transform: translateY(-150px) translateX(100px);
+            }
         }
 
         .container {
             position: relative;
             z-index: 1;
-            max-width: 500px;
+            max-width: 600px;
             margin: 0 auto;
             padding: 20px;
             min-height: 100vh;
         }
 
         .header {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 25px;
             margin-bottom: 20px;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 40px var(--shadow);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            animation: pulse 4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
         }
 
         .header h1 {
-            color: white;
             font-size: 2em;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, var(--accent) 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .balance {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.5em;
-            color: #FFD700;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .wheel-container {
-            position: relative;
-            width: 100%;
-            max-width: 350px;
-            margin: 30px auto;
-            display: none;
-        }
-
-        .wheel-container.active {
-            display: block;
-        }
-
-        .wheel {
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #FFD700, #FFA500);
-            border: 8px solid white;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
-            position: relative;
-            transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
-        }
-
-        .wheel-segment {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            top: 50%;
-            left: 50%;
-            transform-origin: 0 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2em;
-        }
-
-        .wheel-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80px;
-            height: 80px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2em;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            z-index: 10;
-        }
-
-        .wheel-pointer {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 30px solid #FF4444;
-            z-index: 20;
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
-        }
-
-        .menu-grid {
+        .market-summary {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
+            margin-top: 20px;
+        }
+
+        .summary-card {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .summary-label {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
             margin-bottom: 20px;
         }
 
-        .menu-btn {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            padding: 25px 15px;
-            color: white;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .menu-btn:active {
-            transform: scale(0.95);
-        }
-
-        .menu-btn .emoji {
-            font-size: 2.5em;
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .gifts-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .gift-cell {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
+        .search-box {
+            flex: 1;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
             border-radius: 15px;
-            padding: 20px 10px;
-            text-align: center;
-            cursor: pointer;
+            padding: 15px 20px;
+            font-size: 1em;
+            color: var(--text-primary);
+            backdrop-filter: blur(20px);
             transition: all 0.3s;
-            border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
-        .gift-cell:active {
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .search-box::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .filter-btn {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 15px 20px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(20px);
+            font-weight: 600;
+        }
+
+        .filter-btn:active {
             transform: scale(0.95);
         }
 
-        .gift-cell .emoji {
-            font-size: 2.5em;
-            display: block;
+        .filter-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            box-shadow: 0 5px 20px var(--accent-glow);
+        }
+
+        .crypto-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 80px;
+        }
+
+        .crypto-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .crypto-card:hover {
+            background: var(--bg-hover);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px var(--shadow);
+        }
+
+        .crypto-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent) 0%, #764ba2 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .crypto-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .crypto-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .crypto-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            margin-right: 15px;
+            box-shadow: 0 5px 15px var(--accent-glow);
+        }
+
+        .crypto-info {
+            flex: 1;
+        }
+
+        .crypto-name {
+            font-size: 1.2em;
+            font-weight: bold;
             margin-bottom: 5px;
         }
 
-        .gift-cell .price {
-            color: #FFD700;
+        .crypto-symbol {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .crypto-price {
+            font-size: 1.5em;
             font-weight: bold;
-            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .crypto-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .stat {
+            background: var(--bg-secondary);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .stat-value.positive {
+            color: #10b981;
+        }
+
+        .stat-value.negative {
+            color: #ef4444;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-color);
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 100;
+            box-shadow: 0 -5px 20px var(--shadow);
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 10px 20px;
+            border-radius: 15px;
+        }
+
+        .nav-btn.active {
+            color: var(--accent);
+            background: var(--bg-secondary);
+        }
+
+        .nav-btn:active {
+            transform: scale(0.9);
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .settings-section {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .settings-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .setting-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .setting-desc {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+
+        .theme-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .theme-option {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .theme-option:active {
+            transform: scale(0.95);
+        }
+
+        .theme-option.active {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .theme-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .theme-name {
+            font-weight: 600;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid var(--border-color);
+        }
+
+        .toggle-switch.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            left: 32px;
         }
 
         .modal {
@@ -223,6 +495,7 @@
             justify-content: center;
             z-index: 1000;
             padding: 20px;
+            backdrop-filter: blur(10px);
         }
 
         .modal.active {
@@ -230,15 +503,16 @@
         }
 
         .modal-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
             border-radius: 30px;
             padding: 30px;
-            max-width: 400px;
+            max-width: 500px;
             width: 100%;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            position: relative;
+            border: 1px solid var(--border-color);
             animation: modalSlideIn 0.3s;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         @keyframes modalSlideIn {
@@ -252,360 +526,303 @@
             }
         }
 
-        .modal-content h2 {
-            color: white;
-            margin-bottom: 20px;
-            font-size: 1.8em;
-        }
-
-        .modal-content p {
-            color: white;
-            margin-bottom: 20px;
-            font-size: 1.2em;
-            line-height: 1.6;
-        }
-
-        .btn {
-            background: rgba(255, 255, 255, 0.3);
-            border: 2px solid white;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 15px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 5px;
-            display: inline-block;
-        }
-
-        .btn:active {
-            transform: scale(0.95);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            border-color: #FFD700;
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #10b981, #059669);
-            border-color: #10b981;
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            border-color: #ef4444;
-        }
-
-        .inventory-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin: 20px 0;
-        }
-
-        .inventory-item {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 10px;
+        .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: white;
+            margin-bottom: 20px;
         }
 
-        .inventory-item .info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .inventory-item .emoji {
-            font-size: 2em;
-        }
-
-        .result-animation {
-            font-size: 5em;
-            animation: popIn 0.5s;
-        }
-
-        @keyframes popIn {
-            0% {
-                transform: scale(0);
-            }
-            50% {
-                transform: scale(1.2);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .stat-card {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            color: white;
-        }
-
-        .stat-card .value {
-            font-size: 2em;
+        .modal-title {
+            font-size: 1.5em;
             font-weight: bold;
-            color: #FFD700;
-            margin-bottom: 5px;
         }
 
-        .stat-card .label {
-            font-size: 0.9em;
-            opacity: 0.9;
-        }
-
-        .nft-cells {
-            display: grid;
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .nft-cell {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .nft-cell:active {
-            transform: scale(0.98);
-        }
-
-        .nft-cell .title {
-            color: white;
-            font-size: 1.3em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .nft-cell .chance {
-            color: #FFD700;
-            font-size: 1.1em;
-            margin-bottom: 10px;
-        }
-
-        .nft-cell .cost {
-            color: white;
-            font-size: 1.2em;
-        }
-
-        .page {
-            display: none;
-        }
-
-        .page.active {
-            display: block;
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .back-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
-            border: 2px solid white;
-            color: white;
-            width: 50px;
-            height: 50px;
+        .close-btn {
+            background: var(--bg-secondary);
+            border: none;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
-            display: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: all 0.3s;
+        }
+
+        .close-btn:active {
+            transform: scale(0.9);
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 200px;
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            margin: 20px 0;
+            display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5em;
-            cursor: pointer;
-            z-index: 100;
+            position: relative;
+            overflow: hidden;
         }
 
-        .back-btn.active {
+        .chart-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            border: 3px solid var(--bg-secondary);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .watchlist-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .watchlist-empty-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .category-tabs {
             display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .category-tabs::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .category-tabs::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 2px;
+        }
+
+        .category-tabs::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .category-tab {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .category-tab:active {
+            transform: scale(0.95);
+        }
+
+        .category-tab.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .refresh-btn {
+            background: var(--accent);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5em;
+            cursor: pointer;
+            box-shadow: 0 5px 20px var(--accent-glow);
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:active {
+            transform: scale(0.9) rotate(180deg);
+        }
+
+        .refresh-btn.spinning {
+            animation: spin 1s linear infinite;
         }
     </style>
 </head>
 <body>
-    <!-- Фон со звёздами -->
-    <div class="stars-bg" id="starsBg"></div>
-
-    <!-- Кнопка назад -->
-    <div class="back-btn" id="backBtn" onclick="goBack()">←</div>
+    <div class="particles" id="particles"></div>
 
     <div class="container">
         <!-- ГЛАВНАЯ СТРАНИЦА -->
-        <div class="page active" id="mainPage">
+        <div class="page active" id="marketPage">
             <div class="header">
-                <h1>🎁 Vitcoin Gifts</h1>
-                <div class="balance">
-                    <span>⭐</span>
-                    <span id="starsBalance">0</span>
+                <div class="header-content">
+                    <h1>📈 Crypto Tracker</h1>
+                    <div class="market-summary">
+                        <div class="summary-card">
+                            <div class="summary-label">Рынок</div>
+                            <div class="summary-value" id="marketCap">$2.8T</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">24ч объём</div>
+                            <div class="summary-value" id="volume24h">$142B</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">BTC Dom</div>
+                            <div class="summary-value" id="btcDom">56.8%</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="menu-grid">
-                <button class="menu-btn" onclick="showOpenGift()">
-                    <span class="emoji">🎁</span>
-                    Открыть подарок
-                </button>
-                <button class="menu-btn" onclick="showPage('freeNftPage')">
-                    <span class="emoji">💎</span>
-                    Бесплатный NFT
-                </button>
-                <button class="menu-btn" onclick="showPage('giftsPage')">
-                    <span class="emoji">🎰</span>
-                    Подарки
-                </button>
-                <button class="menu-btn" onclick="showPage('nftCellsPage')">
-                    <span class="emoji">💠</span>
-                    NFT ячейки
-                </button>
-                <button class="menu-btn" onclick="showPage('inventoryPage')">
-                    <span class="emoji">🎒</span>
-                    Инвентарь
-                </button>
-                <button class="menu-btn" onclick="showPage('statsPage')">
-                    <span class="emoji">📊</span>
-                    Статистика
-                </button>
-            </div>
-        </div>
-
-        <!-- СТРАНИЦА ПОДАРКОВ -->
-        <div class="page" id="giftsPage">
-            <div class="header">
-                <h2 style="color: white; margin-bottom: 10px;">🎁 Ячейки подарков</h2>
-                <p style="color: white; opacity: 0.9;">Шанс выигрыша: 40%</p>
+            <div class="controls">
+                <input type="text" class="search-box" id="searchInput" placeholder="🔍 Поиск...">
+                <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">🔄</button>
             </div>
 
-            <div class="gifts-grid" id="giftsGrid"></div>
-        </div>
-
-        <!-- СТРАНИЦА NFT ЯЧЕЕК -->
-        <div class="page" id="nftCellsPage">
-            <div class="header">
-                <h2 style="color: white; margin-bottom: 10px;">💎 NFT ячейки</h2>
-                <p style="color: white; opacity: 0.9;">Получите NFT за 400⭐</p>
+            <div class="category-tabs" id="categoryTabs">
+                <div class="category-tab active" onclick="filterCategory('all')">Все</div>
+                <div class="category-tab" onclick="filterCategory('favorites')">⭐ Избранное</div>
+                <div class="category-tab" onclick="filterCategory('top')">🔥 Топ</div>
+                <div class="category-tab" onclick="filterCategory('defi')">💎 DeFi</div>
+                <div class="category-tab" onclick="filterCategory('nft')">🎨 NFT</div>
+                <div class="category-tab" onclick="filterCategory('gaming')">🎮 Gaming</div>
             </div>
 
-            <div class="nft-cells">
-                <div class="nft-cell" onclick="openNftCell(1, 5, 0.8)">
-                    <div class="title">Ячейка 1</div>
-                    <div class="chance">Шанс: 1%</div>
-                    <div class="cost">Цена: 5⭐</div>
-                </div>
-                <div class="nft-cell" onclick="openNftCell(2, 50, 8)">
-                    <div class="title">Ячейка 2</div>
-                    <div class="chance">Шанс: 10%</div>
-                    <div class="cost">Цена: 50⭐</div>
-                </div>
-                <div class="nft-cell" onclick="openNftCell(3, 175, 36)">
-                    <div class="title">Ячейка 3</div>
-                    <div class="chance">Шанс: 45%</div>
-                    <div class="cost">Цена: 175⭐</div>
+            <div class="crypto-grid" id="cryptoGrid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Загрузка данных...</p>
                 </div>
             </div>
         </div>
 
-        <!-- СТРАНИЦА ИНВЕНТАРЯ -->
-        <div class="page" id="inventoryPage">
+        <!-- СТРАНИЦА ИЗБРАННОГО -->
+        <div class="page" id="watchlistPage">
             <div class="header">
-                <h2 style="color: white;">🎒 Инвентарь</h2>
+                <div class="header-content">
+                    <h1>⭐ Избранное</h1>
+                </div>
             </div>
 
-            <div class="inventory-list" id="inventoryList"></div>
-        </div>
-
-        <!-- СТРАНИЦА СТАТИСТИКИ -->
-        <div class="page" id="statsPage">
-            <div class="header">
-                <h2 style="color: white;">📊 Статистика</h2>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="value" id="totalOpened">0</div>
-                    <div class="label">Открыто подарков</div>
-                </div>
-                <div class="stat-card">
-                    <div class="value" id="giftsWon">0</div>
-                    <div class="label">Выиграно подарков</div>
-                </div>
-                <div class="stat-card">
-                    <div class="value" id="nftWon">0</div>
-                    <div class="label">NFT выиграно</div>
-                </div>
-                <div class="stat-card">
-                    <div class="value" id="totalStars">0</div>
-                    <div class="label">Всего звёзд</div>
+            <div class="crypto-grid" id="watchlistGrid">
+                <div class="watchlist-empty">
+                    <div class="watchlist-empty-icon">⭐</div>
+                    <h2>Избранное пусто</h2>
+                    <p>Добавьте криптовалюты в избранное</p>
                 </div>
             </div>
         </div>
 
-        <!-- СТРАНИЦА БЕСПЛАТНОГО NFT -->
-        <div class="page" id="freeNftPage">
+        <!-- СТРАНИЦА НАСТРОЕК -->
+        <div class="page" id="settingsPage">
             <div class="header">
-                <h2 style="color: white; margin-bottom: 10px;">💎 Бесплатный NFT</h2>
-                <p style="color: white; opacity: 0.9;">Шанс: 0.1%</p>
-                <p style="color: white; opacity: 0.9;" id="freeNftTimer">Доступно сейчас!</p>
+                <div class="header-content">
+                    <h1>⚙️ Настройки</h1>
+                </div>
             </div>
 
-            <button class="btn btn-primary" onclick="openFreeNft()" style="width: 100%; padding: 20px; font-size: 1.3em; margin-top: 20px;">
-                🎁 Получить бесплатный шанс
-            </button>
+            <div class="settings-section">
+                <div class="settings-title">🎨 Тема оформления</div>
+                <div class="theme-options">
+                    <div class="theme-option active" id="darkTheme" onclick="setTheme('dark')">
+                        <div class="theme-icon">🌙</div>
+                        <div class="theme-name">Тёмная</div>
+                    </div>
+                    <div class="theme-option" id="lightTheme" onclick="setTheme('light')">
+                        <div class="theme-icon">☀️</div>
+                        <div class="theme-name">Светлая</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-title">🔔 Уведомления</div>
+                <div class="setting-item" onclick="toggleSetting('priceAlerts')">
+                    <div class="setting-info">
+                        <div class="setting-label">Уведомления о цене</div>
+                        <div class="setting-desc">Получать алерты при изменении цены</div>
+                    </div>
+                    <div class="toggle-switch" id="priceAlertsToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+
+                <div class="setting-item" onclick="toggleSetting('newsAlerts')">
+                    <div class="setting-info">
+                        <div class="setting-label">Новости</div>
+                        <div class="setting-desc">Уведомления о важных новостях</div>
+                    </div>
+                    <div class="toggle-switch" id="newsAlertsToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-title">💰 Валюта</div>
+                <div class="setting-item" onclick="toggleSetting('currency')">
+                    <div class="setting-info">
+                        <div class="setting-label">Отображение в USD</div>
+                        <div class="setting-desc">Показывать цены в долларах</div>
+                    </div>
+                    <div class="toggle-switch active" id="currencyToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-title">ℹ️ О приложении</div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-label">Версия</div>
+                        <div class="setting-desc">1.0.0</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- КОНТЕЙНЕР КОЛЕСА -->
-    <div class="wheel-container" id="wheelContainer">
-        <div class="wheel-pointer"></div>
-        <div class="wheel" id="wheel">
-            <div class="wheel-segment" style="transform: rotate(0deg);"><span>✅</span></div>
-            <div class="wheel-segment" style="transform: rotate(90deg);"><span>❌</span></div>
-            <div class="wheel-segment" style="transform: rotate(180deg);"><span>✅</span></div>
-            <div class="wheel-segment" style="transform: rotate(270deg);"><span>❌</span></div>
-            <div class="wheel-center">🎁</div>
-        </div>
+    <!-- Навигация -->
+    <div class="bottom-nav">
+        <button class="nav-btn active" onclick="switchPage('marketPage', this)">📊</button>
+        <button class="nav-btn" onclick="switchPage('watchlistPage', this)">⭐</button>
+        <button class="nav-btn" onclick="switchPage('settingsPage', this)">⚙️</button>
     </div>
 
-    <!-- МОДАЛЬНЫЕ ОКНА -->
-    <div class="modal" id="confirmModal">
+    <!-- Модальное окно детальной информации -->
+    <div class="modal" id="detailModal">
         <div class="modal-content">
-            <h2 id="confirmTitle">Подтверждение</h2>
-            <p id="confirmText"></p>
-            <button class="btn btn-success" onclick="confirmAction()">✅ Да</button>
-            <button class="btn btn-danger" onclick="closeModal()">❌ Нет</button>
-        </div>
-    </div>
-
-    <div class="modal" id="resultModal">
-        <div class="modal-content">
-            <div class="result-animation" id="resultEmoji"></div>
-            <h2 id="resultTitle"></h2>
-            <p id="resultText"></p>
-            <button class="btn btn-primary" onclick="closeResultModal()">OK</button>
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Bitcoin</div>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div id="modalBody"></div>
         </div>
     </div>
 
@@ -614,364 +831,357 @@
         tg.expand();
         tg.MainButton.hide();
 
-        // Данные игрока
-        let gameData = {
-            stars: 1000, // Для теста
-            inventory: [],
-            stats: {
-                totalOpened: 0,
-                giftsWon: 0,
-                nftWon: 0,
-                totalStars: 0
+        // Данные приложения
+        let appData = {
+            theme: 'dark',
+            watchlist: [],
+            settings: {
+                priceAlerts: false,
+                newsAlerts: false,
+                currency: true
             },
-            lastFreeNft: null
+            currentCategory: 'all',
+            cryptoData: []
         };
 
-        // Подарки
-        const GIFTS = [
-            {name: "Алмаз", emoji: "💎", cost: 45, sell: 100},
-            {name: "Кубок", emoji: "🏆", cost: 45, sell: 100},
-            {name: "Ракета", emoji: "🚀", cost: 25, sell: 50},
-            {name: "Шампанское", emoji: "🍾", cost: 25, sell: 50},
-            {name: "Торт", emoji: "🎂", cost: 25, sell: 50},
-            {name: "Розы", emoji: "🌹", cost: 12, sell: 25},
-            {name: "Подарок", emoji: "🎁", cost: 12, sell: 25},
-            {name: "Сердечко", emoji: "💖", cost: 12, sell: 15},
-            {name: "Мишка", emoji: "🧸", cost: 8, sell: 15}
+        // Моковые данные криптовалют (в реальном приложении - API)
+        const mockCryptoData = [
+            {id: 1, name: 'Bitcoin', symbol: 'BTC', icon: '₿', price: 64250.00, change24h: 2.5, volume: '28.5B', marketCap: '1.26T', category: 'top'},
+            {id: 2, name: 'Ethereum', symbol: 'ETH', icon: 'Ξ', price: 3420.50, change24h: -1.2, volume: '15.2B', marketCap: '411B', category: 'top'},
+            {id: 3, name: 'BNB', symbol: 'BNB', icon: '🔶', price: 595.20, change24h: 3.8, volume: '2.1B', marketCap: '89.2B', category: 'top'},
+            {id: 4, name: 'Solana', symbol: 'SOL', icon: '◎', price: 142.80, change24h: 5.2, volume: '3.8B', marketCap: '67.5B', category: 'top'},
+            {id: 5, name: 'Cardano', symbol: 'ADA', icon: '₳', price: 0.68, change24h: -2.1, volume: '890M', marketCap: '24.1B', category: 'top'},
+            {id: 6, name: 'Ripple', symbol: 'XRP', icon: '✕', price: 0.54, change24h: 1.5, volume: '1.2B', marketCap: '29.8B', category: 'top'},
+            {id: 7, name: 'Polkadot', symbol: 'DOT', icon: '●', price: 7.25, change24h: -3.4, volume: '456M', marketCap: '9.8B', category: 'top'},
+            {id: 8, name: 'Uniswap', symbol: 'UNI', icon: '🦄', price: 12.45, change24h: 4.2, volume: '245M', marketCap: '7.5B', category: 'defi'},
+            {id: 9, name: 'Chainlink', symbol: 'LINK', icon: '⬡', price: 15.80, change24h: 2.8, volume: '678M', marketCap: '8.9B', category: 'defi'},
+            {id: 10, name: 'Aave', symbol: 'AAVE', icon: '👻', price: 185.20, change24h: -1.5, volume: '189M', marketCap: '2.8B', category: 'defi'},
+            {id: 11, name: 'Axie Infinity', symbol: 'AXS', icon: '⚔️', price: 8.95, change24h: 6.3, volume: '156M', marketCap: '1.2B', category: 'gaming'},
+            {id: 12, name: 'Decentraland', symbol: 'MANA', icon: '🏝️', price: 0.82, change24h: 3.1, volume: '98M', marketCap: '1.5B', category: 'nft'},
+            {id: 13, name: 'The Sandbox', symbol: 'SAND', icon: '🏖️', price: 0.65, change24h: -2.3, volume: '134M', marketCap: '1.2B', category: 'gaming'},
+            {id: 14, name: 'ApeCoin', symbol: 'APE', icon: '🐵', price: 1.45, change24h: 8.2, volume: '87M', marketCap: '540M', category: 'nft'},
+            {id: 15, name: 'Curve DAO', symbol: 'CRV', icon: '🌊', price: 0.95, change24h: -0.8, volume: '67M', marketCap: '890M', category: 'defi'}
         ];
-
-        let currentAction = null;
-        let currentPage = 'mainPage';
 
         // Инициализация
         function init() {
             loadData();
-            updateUI();
-            renderGifts();
-            createStars();
-            checkFreeNftTimer();
-            setInterval(checkFreeNftTimer, 1000);
+            createParticles();
+            renderCryptoGrid();
+            updateWatchlist();
+            applyTheme();
+            setupSearch();
+            
+            // Имитация обновления данных
+            setInterval(updatePrices, 5000);
         }
 
-        // Создание звёзд на фоне
-        function createStars() {
-            const container = document.getElementById('starsBg');
-            for (let i = 0; i < 50; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.width = Math.random() * 3 + 'px';
-                star.style.height = star.style.width;
-                star.style.animationDelay = Math.random() * 3 + 's';
-                container.appendChild(star);
+        // Создание частиц
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.width = Math.random() * 4 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(particle);
             }
         }
 
-        // Сохранение/загрузка данных
-        function saveData() {
-            localStorage.setItem('vitcoinGameData', JSON.stringify(gameData));
-        }
-
-        function loadData() {
-            const saved = localStorage.getItem('vitcoinGameData');
-            if (saved) {
-                gameData = JSON.parse(saved);
+        // Рендер сетки криптовалют
+        function renderCryptoGrid() {
+            const grid = document.getElementById('cryptoGrid');
+            appData.cryptoData = mockCryptoData;
+            
+            let filtered = filterCryptoData();
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="loading"><p>Нет результатов</p></div>';
+                return;
             }
-        }
 
-        // Обновление UI
-        function updateUI() {
-            document.getElementById('starsBalance').textContent = gameData.stars;
-            document.getElementById('totalOpened').textContent = gameData.stats.totalOpened;
-            document.getElementById('giftsWon').textContent = gameData.stats.giftsWon;
-            document.getElementById('nftWon').textContent = gameData.stats.nftWon;
-            document.getElementById('totalStars').textContent = gameData.stats.totalStars;
-            updateInventory();
-        }
-
-        // Рендер подарков
-        function renderGifts() {
-            const grid = document.getElementById('giftsGrid');
             grid.innerHTML = '';
-            GIFTS.forEach(gift => {
-                const cell = document.createElement('div');
-                cell.className = 'gift-cell';
-                cell.innerHTML = `
-                    <span class="emoji">${gift.emoji}</span>
-                    <div class="price">${gift.cost}⭐</div>
-                `;
-                cell.onclick = () => openGiftCell(gift);
-                grid.appendChild(cell);
+            filtered.forEach(crypto => {
+                const card = createCryptoCard(crypto);
+                grid.appendChild(card);
             });
         }
 
-        // Переключение страниц
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            currentPage = pageId;
-            document.getElementById('backBtn').classList.add('active');
+        // Создание карточки криптовалюты
+        function createCryptoCard(crypto) {
+            const card = document.createElement('div');
+            card.className = 'crypto-card';
             
-            if (pageId === 'inventoryPage') updateInventory();
-        }
-
-        function goBack() {
-            showPage('mainPage');
-            document.getElementById('backBtn').classList.remove('active');
-        }
-
-        // Открытие основного подарка
-        function showOpenGift() {
-            if (gameData.stars < 25) {
-                showResult('❌', 'Недостаточно звёзд!', 'Нужно 25⭐');
-                vibrate('error');
-                return;
-            }
-
-            document.getElementById('confirmTitle').textContent = '🎁 Открыть подарок?';
-            document.getElementById('confirmText').innerHTML = `
-                <b>Стоимость:</b> 25⭐<br>
-                <b>Ваш баланс:</b> ${gameData.stars}⭐
+            const isInWatchlist = appData.watchlist.includes(crypto.id);
+            const changeClass = crypto.change24h >= 0 ? 'positive' : 'negative';
+            const changeSign = crypto.change24h >= 0 ? '+' : '';
+            
+            card.innerHTML = `
+                <div class="crypto-header">
+                    <div class="crypto-icon">${crypto.icon}</div>
+                    <div class="crypto-info">
+                        <div class="crypto-name">${crypto.name}</div>
+                        <div class="crypto-symbol">${crypto.symbol}</div>
+                    </div>
+                    <button onclick="toggleWatchlist(${crypto.id}, event)" style="background: transparent; border: none; font-size: 1.5em; cursor: pointer;">
+                        ${isInWatchlist ? '⭐' : '☆'}
+                    </button>
+                </div>
+                <div class="crypto-price">$${formatNumber(crypto.price)}</div>
+                <div class="crypto-stats">
+                    <div class="stat">
+                        <div class="stat-label">24ч</div>
+                        <div class="stat-value ${changeClass}">${changeSign}${crypto.change24h}%</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Объём</div>
+                        <div class="stat-value">$${crypto.volume}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Кап.</div>
+                        <div class="stat-value">$${crypto.marketCap}</div>
+                    </div>
+                </div>
             `;
-            currentAction = 'openGift';
-            document.getElementById('confirmModal').classList.add('active');
-        }
-
-        function confirmAction() {
-            closeModal();
-
-            if (currentAction === 'openGift') {
-                processOpenGift();
-            }
-        }
-
-        function processOpenGift() {
-            gameData.stars -= 25;
-            gameData.stats.totalOpened++;
             
-            // Показываем колесо
-            showWheel(() => {
-                const rand = Math.random() * 100;
-                
-                // Шансы
-                if (rand < 0.5) { // NFT 0.5%
-                    winNFT();
-                } else if (rand < 5.5) { // 500 звезд 1.5%
-                    winStars(500);
-                } else if (rand < 8.5) { // 100 звезд 3%
-                    winStars(100);
-                } else if (rand < 13.5) { // 50 звезд 5%
-                    winStars(50);
-                } else if (rand < 28.5) { // 10 звезд 15%
-                    winStars(10);
-                } else if (rand < 43.5) { // 5 звезд 15%
-                    winStars(5);
-                } else if (rand < 63.5) { // 3 звезды 20%
-                    winStars(3);
-                } else if (rand < 100) { // 1 звезда 40%
-                    winStars(1);
-                } else { // Проигрыш
-                    showResult('😔', 'Не повезло', 'Попробуйте ещё раз!');
-                    vibrate('error');
+            card.onclick = (e) => {
+                if (!e.target.closest('button')) {
+                    showDetail(crypto);
                 }
-
-                updateUI();
-                saveData();
-            });
-        }
-
-        // Колесо
-        function showWheel(callback) {
-            const container = document.getElementById('wheelContainer');
-            const wheel = document.getElementById('wheel');
+            };
             
-            container.classList.add('active');
-            wheel.style.transform = 'rotate(0deg)';
-
-            setTimeout(() => {
-                const spins = 5 + Math.random() * 3;
-                const degrees = spins * 360;
-                wheel.style.transform = `rotate(${degrees}deg)`;
-
-                setTimeout(() => {
-                    container.classList.remove('active');
-                    callback();
-                }, 3000);
-            }, 100);
+            return card;
         }
 
-        // Победы
-        function winStars(amount) {
-            gameData.stars += amount;
-            gameData.stats.totalStars += amount;
-            showResult('⭐', `Выигрыш: ${amount}⭐`, `Ваш баланс: ${gameData.stars}⭐`);
-            vibrate('success');
-        }
-
-        function winNFT() {
-            gameData.inventory.push({
-                id: Date.now(),
-                name: 'NFT',
-                emoji: '💎',
-                value: 400
-            });
-            gameData.stats.nftWon++;
-            showResult('💎', 'ПОЗДРАВЛЯЕМ!', 'Вы выиграли NFT!<br>Стоимость: 400⭐');
-            vibrate('success');
-        }
-
-        // Открытие ячейки подарка
-        function openGiftCell(gift) {
-            if (gameData.stars < gift.cost) {
-                showResult('❌', 'Недостаточно звёзд!', `Нужно ${gift.cost}⭐`);
-                vibrate('error');
-                return;
+        // Форматирование чисел
+        function formatNumber(num) {
+            if (num >= 1000) {
+                return num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             }
+            return num.toFixed(2);
+        }
 
-            gameData.stars -= gift.cost;
+        // Фильтрация данных
+        function filterCryptoData() {
+            let data = [...appData.cryptoData];
+            
+            // По категории
+            if (appData.currentCategory === 'favorites') {
+                data = data.filter(c => appData.watchlist.includes(c.id));
+            } else if (appData.currentCategory !== 'all') {
+                data = data.filter(c => c.category === appData.currentCategory);
+            }
+            
+            // По поиску
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            if (search) {
+                data = data.filter(c => 
+                    c.name.toLowerCase().includes(search) || 
+                    c.symbol.toLowerCase().includes(search)
+                );
+            }
+            
+            return data;
+        }
 
-            showWheel(() => {
-                if (Math.random() * 100 < 40) {
-                    gameData.inventory.push({
-                        id: Date.now(),
-                        name: gift.name,
-                        emoji: gift.emoji,
-                        value: gift.sell
-                    });
-                    gameData.stats.giftsWon++;
-                    showResult(gift.emoji, 'Выигрыш!', `${gift.name}<br>Цена продажи: ${gift.sell}⭐`);
-                    vibrate('success');
-                } else {
-                    showResult('😔', 'Не повезло', 'Попробуйте ещё раз!');
-                    vibrate('error');
-                }
+        // Фильтр по категории
+        function filterCategory(category) {
+            appData.currentCategory = category;
+            
+            // Обновление активной вкладки
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderCryptoGrid();
+            vibrate('light');
+        }
 
-                updateUI();
-                saveData();
+        // Поиск
+        function setupSearch() {
+            const search = document.getElementById('searchInput');
+            search.addEventListener('input', () => {
+                renderCryptoGrid();
             });
         }
 
-        // NFT ячейки
-        function openNftCell(cellNum, cost, realChance) {
-            if (gameData.stars < cost) {
-                showResult('❌', 'Недостаточно звёзд!', `Нужно ${cost}⭐`);
-                vibrate('error');
-                return;
-            }
-
-            gameData.stars -= cost;
-
-            showWheel(() => {
-                if (Math.random() * 100 < realChance) {
-                    winNFT();
-                } else {
-                    showResult('😔', 'NFT не выпал', 'Попробуйте ещё раз!');
-                    vibrate('error');
-                }
-
-                updateUI();
-                saveData();
-            });
-        }
-
-        // Бесплатный NFT
-        function checkFreeNftTimer() {
-            const now = Date.now();
-            if (!gameData.lastFreeNft) {
-                document.getElementById('freeNftTimer').textContent = 'Доступно сейчас!';
-                return;
-            }
-
-            const diff = 24 * 60 * 60 * 1000 - (now - gameData.lastFreeNft);
-            if (diff <= 0) {
-                document.getElementById('freeNftTimer').textContent = 'Доступно сейчас!';
+        // Избранное
+        function toggleWatchlist(id, event) {
+            event.stopPropagation();
+            
+            const index = appData.watchlist.indexOf(id);
+            if (index > -1) {
+                appData.watchlist.splice(index, 1);
             } else {
-                const hours = Math.floor(diff / (60 * 60 * 1000));
-                const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
-                document.getElementById('freeNftTimer').textContent = `Доступно через ${hours}ч ${minutes}мин`;
+                appData.watchlist.push(id);
             }
-        }
-
-        function openFreeNft() {
-            const now = Date.now();
-            if (gameData.lastFreeNft && (now - gameData.lastFreeNft) < 24 * 60 * 60 * 1000) {
-                const diff = 24 * 60 * 60 * 1000 - (now - gameData.lastFreeNft);
-                const hours = Math.floor(diff / (60 * 60 * 1000));
-                const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
-                showResult('⏳', 'Слишком рано!', `Доступно через ${hours}ч ${minutes}мин`);
-                vibrate('error');
-                return;
-            }
-
-            gameData.lastFreeNft = now;
-
-            showWheel(() => {
-                if (Math.random() * 100 < 0.1) {
-                    winNFT();
-                } else {
-                    showResult('🎁', 'Использовано', 'Следующий через 24 часа');
-                    vibrate('light');
-                }
-
-                updateUI();
-                saveData();
-            });
-        }
-
-        // Инвентарь
-        function updateInventory() {
-            const list = document.getElementById('inventoryList');
             
-            if (gameData.inventory.length === 0) {
-                list.innerHTML = '<div style="text-align: center; color: white; padding: 40px;">📭 Инвентарь пуст</div>';
-                return;
-            }
+            saveData();
+            renderCryptoGrid();
+            updateWatchlist();
+            vibrate('light');
+        }
 
-            list.innerHTML = '';
-            gameData.inventory.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = 'inventory-item';
-                div.innerHTML = `
-                    <div class="info">
-                        <span class="emoji">${item.emoji}</span>
-                        <div>
-                            <div style="font-weight: bold;">${item.name}</div>
-                            <div style="color: #FFD700;">${item.value}⭐</div>
-                        </div>
-                    </div>
-                    <div>
-                        <button class="btn btn-success" onclick="sellItem(${index})" style="margin-right: 5px;">💰 Продать</button>
+        function updateWatchlist() {
+            const grid = document.getElementById('watchlistGrid');
+            const watchlistCryptos = appData.cryptoData.filter(c => appData.watchlist.includes(c.id));
+            
+            if (watchlistCryptos.length === 0) {
+                grid.innerHTML = `
+                    <div class="watchlist-empty">
+                        <div class="watchlist-empty-icon">⭐</div>
+                        <h2>Избранное пусто</h2>
+                        <p>Добавьте криптовалюты в избранное</p>
                     </div>
                 `;
-                list.appendChild(div);
+                return;
+            }
+            
+            grid.innerHTML = '';
+            watchlistCryptos.forEach(crypto => {
+                const card = createCryptoCard(crypto);
+                grid.appendChild(card);
             });
         }
 
-        function sellItem(index) {
-            const item = gameData.inventory[index];
-            gameData.stars += item.value;
-            gameData.inventory.splice(index, 1);
-            updateUI();
-            saveData();
-            showResult('✅', 'Продано!', `+${item.value}⭐`);
-            vibrate('success');
-        }
-
-        // Модальные окна
-        function showResult(emoji, title, text) {
-            document.getElementById('resultEmoji').textContent = emoji;
-            document.getElementById('resultTitle').textContent = title;
-            document.getElementById('resultText').innerHTML = text;
-            document.getElementById('resultModal').classList.add('active');
+        // Детальная информация
+        function showDetail(crypto) {
+            document.getElementById('modalTitle').textContent = `${crypto.icon} ${crypto.name}`;
+            
+            const changeClass = crypto.change24h >= 0 ? 'positive' : 'negative';
+            const changeSign = crypto.change24h >= 0 ? '+' : '';
+            
+            document.getElementById('modalBody').innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 2.5em; font-weight: bold; margin-bottom: 10px;">
+                        $${formatNumber(crypto.price)}
+                    </div>
+                    <div style="font-size: 1.2em; color: ${changeClass === 'positive' ? '#10b981' : '#ef4444'};">
+                        ${changeSign}${crypto.change24h}% (24ч)
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div style="text-align: center; color: var(--text-secondary);">
+                        📊 График (скоро)
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px;">
+                    <div class="stat">
+                        <div class="stat-label">Объём (24ч)</div>
+                        <div class="stat-value">$${crypto.volume}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Рын. кап.</div>
+                        <div class="stat-value">$${crypto.marketCap}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Макс. (24ч)</div>
+                        <div class="stat-value">$${formatNumber(crypto.price * 1.05)}</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Мин. (24ч)</div>
+                        <div class="stat-value">$${formatNumber(crypto.price * 0.95)}</div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('detailModal').classList.add('active');
+            vibrate('light');
         }
 
         function closeModal() {
-            document.getElementById('confirmModal').classList.remove('active');
+            document.getElementById('detailModal').classList.remove('active');
         }
 
-        function closeResultModal() {
-            document.getElementById('resultModal').classList.remove('active');
+        // Обновление цен
+        function updatePrices() {
+            appData.cryptoData.forEach(crypto => {
+                const change = (Math.random() - 0.5) * 2;
+                crypto.price *= (1 + change / 100);
+                crypto.change24h += change * 0.1;
+            });
+            
+            renderCryptoGrid();
+            updateWatchlist();
+        }
+
+        // Обновление данных
+        function refreshData() {
+            const btn = document.getElementById('refreshBtn');
+            btn.classList.add('spinning');
+            
+            setTimeout(() => {
+                updatePrices();
+                btn.classList.remove('spinning');
+                vibrate('success');
+            }, 1000);
+        }
+
+        // Переключение страниц
+        function switchPage(pageId, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            vibrate('light');
+        }
+
+        // Темы
+        function setTheme(theme) {
+            appData.theme = theme;
+            applyTheme();
+            saveData();
+            vibrate('light');
+        }
+
+        function applyTheme() {
+            document.documentElement.setAttribute('data-theme', appData.theme);
+            
+            document.getElementById('darkTheme').classList.remove('active');
+            document.getElementById('lightTheme').classList.remove('active');
+            
+            if (appData.theme === 'dark') {
+                document.getElementById('darkTheme').classList.add('active');
+            } else {
+                document.getElementById('lightTheme').classList.add('active');
+            }
+        }
+
+        // Настройки
+        function toggleSetting(setting) {
+            if (setting === 'currency') return; // USD only
+            
+            appData.settings[setting] = !appData.settings[setting];
+            
+            const toggle = document.getElementById(setting + 'Toggle');
+            toggle.classList.toggle('active');
+            
+            saveData();
+            vibrate('light');
+        }
+
+        // Сохранение/загрузка
+        function saveData() {
+            localStorage.setItem('cryptoTrackerData', JSON.stringify(appData));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('cryptoTrackerData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                appData.theme = data.theme || 'dark';
+                appData.watchlist = data.watchlist || [];
+                appData.settings = data.settings || appData.settings;
+            }
         }
 
         // Вибрация
