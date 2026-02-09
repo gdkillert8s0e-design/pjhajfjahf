@@ -2,155 +2,236 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Telegram Crypto & NFT Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Crypto Tracker</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #0f1220;
-    color: #fff;
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+background:#0f1220;color:#fff;overflow-x:hidden
 }
-header {
-    padding: 20px;
-    font-size: 22px;
-    font-weight: bold;
+.container{max-width:600px;margin:auto;padding:15px}
+.header{background:#1b1f3b;border-radius:20px;padding:20px;margin-bottom:15px}
+h1{font-size:22px}
+.controls{display:flex;gap:10px;margin:15px 0}
+.search-box{
+flex:1;padding:12px;border-radius:12px;
+border:none;background:#1b1f3b;color:#fff
 }
-.tabs {
-    display: flex;
-    gap: 10px;
-    padding: 10px;
-    overflow-x: auto;
+.refresh-btn{
+width:46px;height:46px;border-radius:50%;
+border:none;background:#667eea;color:#fff;font-size:20px
 }
-.tab {
-    padding: 10px 16px;
-    background: #1b1f3b;
-    border-radius: 12px;
-    cursor: pointer;
-    white-space: nowrap;
+.category-tabs{display:flex;gap:8px;overflow-x:auto;margin-bottom:15px}
+.category-tab{
+padding:10px 16px;background:#1b1f3b;border-radius:12px;
+white-space:nowrap;cursor:pointer
 }
-.tab.active {
-    background: #667eea;
+.category-tab.active{background:#667eea}
+.crypto-grid{display:grid;gap:12px}
+.crypto-card{
+background:#1b1f3b;border-radius:18px;padding:15px;cursor:pointer
 }
-.list {
-    padding: 15px;
+.crypto-header{display:flex;align-items:center;margin-bottom:10px}
+.crypto-icon img{width:40px;height:40px;border-radius:50%}
+.crypto-info{flex:1;margin-left:10px}
+.crypto-name{font-weight:bold}
+.crypto-symbol{font-size:12px;opacity:.7}
+.crypto-price{font-size:18px;font-weight:bold;margin-bottom:10px}
+.crypto-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:#0f1220;padding:8px;border-radius:10px;text-align:center;font-size:12px}
+.positive{color:#10b981}
+.negative{color:#ef4444}
+.bottom-nav{
+position:fixed;bottom:0;left:0;right:0;
+background:#1b1f3b;display:flex;justify-content:space-around;
+padding:10px
 }
-.card {
-    background: #1b1f3b;
-    border-radius: 16px;
-    padding: 15px;
-    margin-bottom: 12px;
+.nav-btn{background:none;border:none;color:#aaa;font-size:20px}
+.nav-btn.active{color:#667eea}
+.page{display:none}
+.page.active{display:block}
+.modal{
+position:fixed;inset:0;background:rgba(0,0,0,.8);
+display:none;align-items:center;justify-content:center
 }
-.row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.modal.active{display:flex}
+.modal-content{
+background:#1b1f3b;border-radius:20px;padding:20px;width:90%;max-width:500px
 }
-.price {
-    font-size: 18px;
-    font-weight: bold;
+.chart{
+position:relative;height:180px;background:#0f1220;border-radius:12px;margin-top:15px
 }
-.pos { color: #10b981; }
-.neg { color: #ef4444; }
+.chart-dot{
+position:absolute;width:4px;height:4px;background:#667eea;border-radius:50%
+}
 </style>
 </head>
 
 <body>
+<div class="container">
 
-<header>🚀 Crypto / NFT / Telegram</header>
+<div class="page active" id="marketPage">
+<div class="header"><h1>📈 Crypto Tracker</h1></div>
 
-<div class="tabs">
-    <div class="tab active" onclick="setCat('all',this)">Все</div>
-    <div class="tab" onclick="setCat('telegram',this)">📱 Telegram</div>
-    <div class="tab" onclick="setCat('nft',this)">🎨 NFT</div>
-    <div class="tab" onclick="setCat('meme',this)">🐸 Memes</div>
+<div class="controls">
+<input id="searchInput" class="search-box" placeholder="Поиск">
+<button class="refresh-btn" onclick="loadMarket()">🔄</button>
 </div>
 
-<div class="list" id="list">
-Загрузка...
+<div class="category-tabs">
+<div class="category-tab active" onclick="setCat('all',this)">Все</div>
+<div class="category-tab" onclick="setCat('top',this)">🔥 Топ</div>
+<div class="category-tab" onclick="setCat('nft',this)">🎨 NFT</div>
+<div class="category-tab" onclick="setCat('telegram',this)">📱 Telegram</div>
+<div class="category-tab" onclick="setCat('meme',this)">🐸 Мемы</div>
+</div>
+
+<div class="crypto-grid" id="cryptoGrid"></div>
+</div>
+
+<div class="page" id="settingsPage">
+<div class="header"><h1>⚙️ Настройки</h1></div>
+<p style="opacity:.7">Тема, уведомления — готово под расширение</p>
+</div>
+
+</div>
+
+<div class="bottom-nav">
+<button class="nav-btn active" onclick="switchPage('marketPage',this)">📊</button>
+<button class="nav-btn" onclick="switchPage('settingsPage',this)">⚙️</button>
+</div>
+
+<div class="modal" id="detailModal">
+<div class="modal-content">
+<h2 id="modalTitle"></h2>
+<div id="modalBody"></div>
+<button onclick="closeModal()" style="margin-top:15px;width:100%">Закрыть</button>
+</div>
 </div>
 
 <script>
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-let category = 'all';
-let coins = [];
+let category='all';
+let coins=[];
 
-const GROUPS = {
-    telegram: ['toncoin','notcoin','gram'],
-    nft: ['apecoin','blur','looksrare','decentraland','the-sandbox'],
-    meme: ['pepe','dogecoin','shiba-inu','floki']
+const GROUPS={
+telegram:['toncoin','notcoin','gram'],
+nft:['apecoin','blur','looksrare','decentraland','the-sandbox'],
+meme:['pepe','dogecoin','shiba-inu','floki']
 };
 
-async function loadMarket() {
-    const url =
-        'https://api.coingecko.com/api/v3/coins/markets' +
-        '?vs_currency=usd' +
-        '&order=market_cap_desc' +
-        '&per_page=100' +
-        '&page=1' +
-        '&price_change_percentage=24h';
+async function loadMarket(){
+const r=await fetch(
+'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&price_change_percentage=24h'
+);
+const data=await r.json();
 
-    const r = await fetch(url);
-    const data = await r.json();
+coins=data.map(c=>({
+id:c.id,
+name:c.name,
+symbol:c.symbol.toUpperCase(),
+price:c.current_price,
+change:c.price_change_percentage_24h||0,
+image:c.image,
+category:detectCategory(c.id)
+}));
 
-    coins = data.map(c => ({
-        id: c.id,
-        name: c.name,
-        symbol: c.symbol.toUpperCase(),
-        price: c.current_price,
-        change: c.price_change_percentage_24h || 0,
-        image: c.image
-    }));
-
-    render();
+render();
 }
 
-function render() {
-    const list = document.getElementById('list');
-    let data = coins;
-
-    if (category !== 'all') {
-        data = data.filter(c => GROUPS[category]?.includes(c.id));
-    }
-
-    list.innerHTML = '';
-
-    data.forEach(c => {
-        const cls = c.change >= 0 ? 'pos' : 'neg';
-        const sign = c.change >= 0 ? '+' : '';
-
-        list.innerHTML += `
-        <div class="card">
-            <div class="row">
-                <div>
-                    <b>${c.name}</b><br>
-                    <small>${c.symbol}</small>
-                </div>
-                <img src="${c.image}" width="32">
-            </div>
-            <div class="row">
-                <div class="price">$${c.price.toLocaleString()}</div>
-                <div class="${cls}">${sign}${c.change.toFixed(2)}%</div>
-            </div>
-        </div>
-        `;
-    });
+function detectCategory(id){
+if(GROUPS.telegram.includes(id))return'telegram';
+if(GROUPS.nft.includes(id))return'nft';
+if(GROUPS.meme.includes(id))return'meme';
+return'top';
 }
 
-function setCat(cat, el) {
-    category = cat;
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    render();
+function render(){
+const grid=document.getElementById('cryptoGrid');
+const search=document.getElementById('searchInput').value.toLowerCase();
+
+let list=coins.filter(c=>
+(category==='all'||c.category===category)&&
+(c.name.toLowerCase().includes(search)||c.symbol.toLowerCase().includes(search))
+);
+
+grid.innerHTML='';
+list.forEach(c=>{
+const cls=c.change>=0?'positive':'negative';
+grid.innerHTML+=`
+<div class="crypto-card" onclick="openDetail('${c.id}')">
+<div class="crypto-header">
+<div class="crypto-icon"><img src="${c.image}"></div>
+<div class="crypto-info">
+<div class="crypto-name">${c.name}</div>
+<div class="crypto-symbol">${c.symbol}</div>
+</div>
+</div>
+<div class="crypto-price">$${c.price.toLocaleString()}</div>
+<div class="crypto-stats">
+<div class="stat ${cls}">${c.change.toFixed(2)}%</div>
+<div class="stat">24ч</div>
+<div class="stat">${c.category}</div>
+</div>
+</div>`;
+});
+}
+
+async function openDetail(id){
+const coin=coins.find(c=>c.id===id);
+document.getElementById('modalTitle').innerText=coin.name;
+
+let chartHTML='';
+if(coin.category==='nft'){
+const r=await fetch(
+`https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=1`
+);
+const data=await r.json();
+const prices=data.prices.map(p=>p[1]);
+const max=Math.max(...prices);
+
+prices.forEach((p,i)=>{
+chartHTML+=`
+<div class="chart-dot" style="
+left:${i/prices.length*100}%;
+bottom:${p/max*100}%;
+"></div>`;
+});
+}
+
+document.getElementById('modalBody').innerHTML=`
+<div><b>$${coin.price}</b> (${coin.change.toFixed(2)}%)</div>
+<div class="chart">${chartHTML}</div>
+`;
+
+document.getElementById('detailModal').classList.add('active');
+}
+
+function closeModal(){
+document.getElementById('detailModal').classList.remove('active');
+}
+
+function setCat(c,el){
+category=c;
+document.querySelectorAll('.category-tab').forEach(t=>t.classList.remove('active'));
+el.classList.add('active');
+render();
+}
+
+function switchPage(id,btn){
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
 }
 
 loadMarket();
-setInterval(loadMarket, 10000);
+setInterval(loadMarket,15000);
 </script>
-
 </body>
 </html>
