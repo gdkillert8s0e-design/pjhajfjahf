@@ -2,8 +2,9 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlappyMouse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Орёл и Решка</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,377 +13,385 @@
         }
 
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            background: #0a0a0a;
-            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
         }
 
-        #gameCanvas {
-            border: 3px solid #000;
-            background: #000;
-            display: block;
-        }
-
-        #ui {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        .container {
             text-align: center;
-            color: #fff;
-            pointer-events: none;
+            max-width: 400px;
+            width: 100%;
         }
 
-        #startText {
-            font-size: 24px;
+        h1 {
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 30px;
+            color: white;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
             margin-top: 5px;
-            color: #fff;
-            font-weight: bold;
         }
 
-        #gameOver {
-            font-size: 48px;
+        .coin-container {
+            perspective: 1000px;
+            margin: 40px 0;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .coin {
+            width: 180px;
+            height: 180px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.1s;
+        }
+
+        .coin.flipping {
+            animation: flip 1s ease-in-out;
+        }
+
+        @keyframes flip {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(1800deg); }
+        }
+
+        .coin-side {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: absolute;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5em;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 5px solid #FFD700;
+        }
+
+        .heads {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            transform: rotateY(0deg);
+        }
+
+        .tails {
+            background: linear-gradient(135deg, #C0C0C0 0%, #808080 100%);
+            transform: rotateY(180deg);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 18px;
+            font-size: 1.2em;
             font-weight: bold;
-            margin-bottom: 5px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-heads {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #333;
+        }
+
+        .btn-tails {
+            background: linear-gradient(135deg, #C0C0C0 0%, #808080 100%);
+            color: white;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .result.show {
+            opacity: 1;
+        }
+
+        .result.win {
+            color: #10b981;
+        }
+
+        .result.lose {
+            color: #ef4444;
+        }
+
+        .reset-btn {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 30px;
+            font-size: 1em;
+        }
+
+        .streak {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .streak.show {
+            display: block;
+            animation: bounce 0.5s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
     </style>
 </head>
 <body>
-<canvas id="gameCanvas" width="600" height="800"></canvas>
-<div id="ui">
-    <div id="gameOver" style="display: none;">GAME OVER</div>
-    <div id="startText">PRESS TO START</div>
-</div>
+    <div class="streak" id="streak">🔥 Серия: <span id="streakCount">0</span></div>
 
-<script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const startTextEl = document.getElementById('startText');
-    const gameOverEl = document.getElementById('gameOver');
+    <div class="container">
+        <h1>🪙 Орёл и Решка</h1>
 
-    let gameStarted = false;
-    let gameOver = false;
-    let score = 0;
-    let frameCount = 0;
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">Побед</div>
+                <div class="stat-value" id="wins">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Поражений</div>
+                <div class="stat-value" id="losses">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Всего</div>
+                <div class="stat-value" id="total">0</div>
+            </div>
+        </div>
 
-    // Летучая мышь
-    const bat = {
-        x: 80,
-        y: canvas.height / 2,
-        width: 50,
-        height: 35,
-        velocity: 0,
-        gravity: 0.6,
-        jump: -10,
-        rotation: 0,
-        wingFlap: 0,
-        flapDuration: 0
-    };
+        <div class="coin-container">
+            <div class="coin" id="coin">
+                <div class="coin-side heads">🦅</div>
+                <div class="coin-side tails">👑</div>
+            </div>
+        </div>
 
-    // Трубы
-    const pipes = [];
-    const pipeWidth = 60;
-    const pipeGap = 170;
-    const pipeSpeed = 3;
-    let pipeTimer = 0;
-    const pipeInterval = 80;
+        <div class="buttons">
+            <button class="btn-heads" id="headsBtn" onclick="makeChoice('heads')">
+                🦅 Орёл
+            </button>
+            <button class="btn-tails" id="tailsBtn" onclick="makeChoice('tails')">
+                👑 Решка
+            </button>
+        </div>
 
-    // Рисуем птицу в стиле Flappy Bird
-    function drawBat() {
-        ctx.save();
-        ctx.translate(bat.x, bat.y);
+        <div class="result" id="result"></div>
 
-        const rot = Math.min(Math.max(bat.velocity * 0.05, -0.5), 0.5);
-        ctx.rotate(rot);
+        <button class="reset-btn" onclick="resetStats()">🔄 Сбросить статистику</button>
+    </div>
 
-        // Крыло машет постоянно до старта, потом только при нажатии
-        let wingFlap = 0;
-        if (!gameStarted) {
-            wingFlap = Math.sin(frameCount * 0.3) > 0 ? -8 : 8;
-        } else if (bat.flapDuration > 0) {
-            wingFlap = -8;
-            bat.flapDuration--;
-        } else {
-            wingFlap = 8;
-        }
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.MainButton.hide();
 
-        // Тело птицы (круглое) - белое
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(0, 0, 12, 0, Math.PI * 2);
-        ctx.fill();
+        let stats = {
+            wins: 0,
+            losses: 0,
+            total: 0,
+            currentStreak: 0,
+            bestStreak: 0
+        };
 
-        // Черный животик
-        ctx.fillStyle = '#000';
-        ctx.beginPath();
-        ctx.arc(2, 2, 8, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Крыло (простое, машет вверх-вниз) - белое
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.ellipse(-8, wingFlap, 10, 6, 0.3, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Клюв - белый
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.moveTo(10, -2);
-        ctx.lineTo(16, 0);
-        ctx.lineTo(10, 2);
-        ctx.closePath();
-        ctx.fill();
-
-        // Глаз (черный)
-        ctx.fillStyle = '#000';
-        ctx.beginPath();
-        ctx.arc(4, -4, 4, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Зрачок - белый
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(5, -4, 2, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Хвост (один треугольник) - белый
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.moveTo(-12, -3);
-        ctx.lineTo(-18, 0);
-        ctx.lineTo(-12, 3);
-        ctx.closePath();
-        ctx.fill();
-
-        // Лапки (маленькие) - белые
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(-2, 10);
-        ctx.lineTo(-2, 14);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(2, 10);
-        ctx.lineTo(2, 14);
-        ctx.stroke();
-
-        ctx.restore();
-    }
-
-    // Рисуем трубы
-    function drawPipes() {
-        pipes.forEach(pipe => {
-            ctx.fillStyle = '#aaa';
-
-            // Верхняя труба
-            ctx.fillRect(pipe.x, 0, pipeWidth, pipe.top - 30);
-
-            // Верхняя кромка
-            ctx.fillRect(pipe.x - 5, pipe.top - 30, pipeWidth + 10, 30);
-
-            // Нижняя кромка
-            ctx.fillRect(pipe.x - 5, pipe.bottom, pipeWidth + 10, 30);
-
-            // Нижняя труба
-            ctx.fillRect(pipe.x, pipe.bottom + 30, pipeWidth, canvas.height - pipe.bottom - 30);
-
-            // Черные рамки
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 3;
-
-            // Рамка верхней трубы
-            ctx.strokeRect(pipe.x, 0, pipeWidth, pipe.top - 30);
-
-            // Рамка верхней кромки
-            ctx.strokeRect(pipe.x - 5, pipe.top - 30, pipeWidth + 10, 30);
-
-            // Рамка нижней кромки
-            ctx.strokeRect(pipe.x - 5, pipe.bottom, pipeWidth + 10, 30);
-
-            // Рамка нижней трубы
-            ctx.strokeRect(pipe.x, pipe.bottom + 30, pipeWidth, canvas.height - pipe.bottom - 30);
-        });
-    }
-
-    // Создаем трубу
-    function createPipe() {
-        const minTop = 100;
-        const maxTop = canvas.height - pipeGap - 100;
-        const top = Math.random() * (maxTop - minTop) + minTop;
-
-        pipes.push({
-            x: canvas.width,
-            top: top,
-            bottom: top + pipeGap,
-            passed: false
-        });
-    }
-
-    // Обновляем трубы
-    function updatePipes() {
-        if (gameStarted && !gameOver) {
-            pipeTimer++;
-            if (pipeTimer > pipeInterval) {
-                createPipe();
-                pipeTimer = 0;
+        // Загрузка статистики
+        function loadStats() {
+            const saved = localStorage.getItem('coinFlipStats');
+            if (saved) {
+                stats = JSON.parse(saved);
+                updateStatsDisplay();
             }
         }
 
-        pipes.forEach((pipe, index) => {
-            if (gameStarted && !gameOver) {
-                pipe.x -= pipeSpeed;
-            }
-
-            if (!pipe.passed && pipe.x + pipeWidth < bat.x) {
-                pipe.passed = true;
-                score++;
-            }
-
-            if (pipe.x + pipeWidth < 0) {
-                pipes.splice(index, 1);
-            }
-        });
-    }
-
-    // Проверка столкновений
-    function checkCollision() {
-        if (bat.y + bat.height / 2 > canvas.height || bat.y - bat.height / 2 < 0) {
-            return true;
+        // Сохранение статистики
+        function saveStats() {
+            localStorage.setItem('coinFlipStats', JSON.stringify(stats));
         }
 
-        for (let pipe of pipes) {
-            if (bat.x + bat.width / 2 > pipe.x &&
-                bat.x - bat.width / 2 < pipe.x + pipeWidth) {
-                if (bat.y - bat.height / 2 < pipe.top ||
-                    bat.y + bat.height / 2 > pipe.bottom) {
-                    return true;
+        // Обновление отображения статистики
+        function updateStatsDisplay() {
+            document.getElementById('wins').textContent = stats.wins;
+            document.getElementById('losses').textContent = stats.losses;
+            document.getElementById('total').textContent = stats.total;
+            
+            if (stats.currentStreak >= 3) {
+                document.getElementById('streakCount').textContent = stats.currentStreak;
+                document.getElementById('streak').classList.add('show');
+            } else {
+                document.getElementById('streak').classList.remove('show');
+            }
+        }
+
+        // Основная функция выбора
+        function makeChoice(userChoice) {
+            const coin = document.getElementById('coin');
+            const result = document.getElementById('result');
+            const buttons = document.querySelectorAll('.buttons button');
+            
+            // Блокируем кнопки
+            buttons.forEach(btn => btn.disabled = true);
+            
+            // Скрываем предыдущий результат
+            result.classList.remove('show');
+            
+            // Случайный результат
+            const coinResult = Math.random() < 0.5 ? 'heads' : 'tails';
+            
+            // Анимация броска
+            coin.classList.add('flipping');
+            
+            setTimeout(() => {
+                coin.classList.remove('flipping');
+                
+                // Поворачиваем монету к нужной стороне
+                if (coinResult === 'tails') {
+                    coin.style.transform = 'rotateY(180deg)';
+                } else {
+                    coin.style.transform = 'rotateY(0deg)';
+                }
+                
+                // Показываем результат
+                setTimeout(() => {
+                    const win = userChoice === coinResult;
+                    
+                    stats.total++;
+                    if (win) {
+                        stats.wins++;
+                        stats.currentStreak++;
+                        if (stats.currentStreak > stats.bestStreak) {
+                            stats.bestStreak = stats.currentStreak;
+                        }
+                        result.textContent = '🎉 Вы выиграли!';
+                        result.className = 'result show win';
+                        
+                        // Вибрация при победе
+                        if (tg.HapticFeedback) {
+                            tg.HapticFeedback.notificationOccurred('success');
+                        }
+                    } else {
+                        stats.losses++;
+                        stats.currentStreak = 0;
+                        result.textContent = '😢 Вы проиграли!';
+                        result.className = 'result show lose';
+                        
+                        // Вибрация при поражении
+                        if (tg.HapticFeedback) {
+                            tg.HapticFeedback.notificationOccurred('error');
+                        }
+                    }
+                    
+                    const coinName = coinResult === 'heads' ? 'Орёл 🦅' : 'Решка 👑';
+                    result.textContent += ` Выпало: ${coinName}`;
+                    
+                    updateStatsDisplay();
+                    saveStats();
+                    
+                    // Разблокируем кнопки
+                    buttons.forEach(btn => btn.disabled = false);
+                }, 300);
+                
+            }, 1000);
+        }
+
+        // Сброс статистики
+        function resetStats() {
+            if (confirm('Вы уверены, что хотите сбросить статистику?')) {
+                stats = {
+                    wins: 0,
+                    losses: 0,
+                    total: 0,
+                    currentStreak: 0,
+                    bestStreak: 0
+                };
+                updateStatsDisplay();
+                saveStats();
+                document.getElementById('result').classList.remove('show');
+                
+                if (tg.HapticFeedback) {
+                    tg.HapticFeedback.notificationOccurred('warning');
                 }
             }
         }
 
-        return false;
-    }
+        // Инициализация
+        loadStats();
 
-    // Обновление игры
-    function update() {
-        if (gameStarted && !gameOver) {
-            bat.velocity += bat.gravity;
-            bat.y += bat.velocity;
-
-            updatePipes();
-
-            if (checkCollision()) {
-                gameOver = true;
-                gameOverEl.style.display = 'block';
-                startTextEl.innerHTML = 'PRESS TO START';
-                startTextEl.style.display = 'block';
-            }
+        // Настройка темы Telegram
+        if (tg.colorScheme === 'dark') {
+            document.body.style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)';
         }
-    }
-
-    // Отрисовка
-    function draw() {
-        // Фон - темный
-        ctx.fillStyle = '#171717';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Облака - темные
-        ctx.fillStyle = '#333';
-        for (let i = 0; i < 4; i++) {
-            const x = (frameCount * 0.5 + i * 120) % (canvas.width + 80);
-            const y = 60 + i * 40;
-            ctx.beginPath();
-            ctx.arc(x, y, 18, 0, Math.PI * 2);
-            ctx.arc(x + 18, y, 22, 0, Math.PI * 2);
-            ctx.arc(x + 36, y, 18, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        drawPipes();
-        drawBat();
-
-        // Счетчик на канвасе (только во время игры) - белый
-        if (gameStarted) {
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 24px Courier New';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'alphabetic';
-            ctx.fillText('Score:' + score, 20, 40);
-        }
-    }
-
-    // Игровой цикл с фиксированной частотой кадров (60 FPS)
-    let lastTime = 0;
-    const targetFPS = 60;
-    const frameDelay = 1000 / targetFPS;
-
-    function gameLoop(currentTime) {
-        requestAnimationFrame(gameLoop);
-
-        const deltaTime = currentTime - lastTime;
-
-        if (deltaTime >= frameDelay) {
-            lastTime = currentTime - (deltaTime % frameDelay);
-            update();
-            draw();
-            frameCount++;
-        }
-    }
-
-    // Прыжок
-    function jump() {
-        if (!gameStarted) {
-            gameStarted = true;
-            startTextEl.style.display = 'none';
-            gameOverEl.style.display = 'none';
-            // Создаем первые 3 трубы при старте с одинаковым расстоянием
-            createPipe();
-            pipes[0].x = 350; // Первая труба
-            createPipe();
-            pipes[1].x = 350 + 240; // Вторая труба (+240 пикселей)
-            createPipe();
-            pipes[2].x = 350 + 480; // Третья труба (+240 пикселей)
-            pipeTimer = -80; // Отрицательное значение, чтобы следующая труба появилась не сразу
-        } else if (gameOver) {
-            bat.y = canvas.height / 2;
-            bat.velocity = 0;
-            bat.flapDuration = 0;
-            pipes.length = 0;
-            score = 0;
-            gameOver = false;
-            gameStarted = true;
-            startTextEl.style.display = 'none';
-            gameOverEl.style.display = 'none';
-            // Создаем первые 3 трубы при рестарте
-            createPipe();
-            pipes[0].x = 350;
-            createPipe();
-            pipes[1].x = 350 + 240;
-            createPipe();
-            pipes[2].x = 350 + 480;
-            pipeTimer = -80;
-        } else {
-            bat.velocity = bat.jump;
-            bat.flapDuration = 10; // Длительность взмаха крыла
-        }
-    }
-
-    // События
-    document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') {
-            e.preventDefault();
-            jump();
-        }
-    });
-
-    canvas.addEventListener('click', jump);
-
-    // Запуск игры
-    gameLoop();
-</script>
+    </script>
 </body>
 </html>
