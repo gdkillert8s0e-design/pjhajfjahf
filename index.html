@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Gift Mini — Demo</title>
+  <title>Gift Mini — Enhanced Demo</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root{
@@ -247,138 +247,295 @@
     }
     .navbtn:active{ transform:scale(.98); }
 
-    /* Roulette */
+    /* Улучшенная рулетка */
     .roulette-wrap{
       display:grid; gap:12px;
     }
     .wheel-area{
       position:relative;
-      height: 280px;
+      height: 300px;
       border-radius: var(--radius2);
       background: rgba(0,0,0,.18);
       border:1px solid rgba(255,255,255,.10);
       overflow:hidden;
       display:flex; align-items:center; justify-content:center;
     }
+    .wheel-container{
+      position:relative;
+      width: 260px;
+      height: 260px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
     .wheel{
-      width: 230px; height: 230px;
+      width: 100%;
+      height: 100%;
       border-radius: 50%;
-      border: 10px solid rgba(255,255,255,.08);
-      box-shadow: inset 0 0 0 8px rgba(0,0,0,.25), 0 20px 60px rgba(0,0,0,.35);
+      border: 12px solid rgba(255,255,255,.08);
+      box-shadow: 
+        inset 0 0 0 10px rgba(0,0,0,.3),
+        0 0 60px rgba(124,92,255,.2),
+        0 20px 80px rgba(0,0,0,.6);
       position:relative;
       transform: rotate(0deg);
-      transition: transform 4.2s cubic-bezier(.1,.9,.1,1);
+      transition: transform 4.5s cubic-bezier(.1,.8,.1,1);
       background:
         conic-gradient(
-          #2df7c1 0deg 45deg,
+          #ff4d6d 0deg 45deg,
           #7c5cff 45deg 90deg,
-          #ff4d6d 90deg 135deg,
-          #00e5ff 135deg 180deg,
+          #00e5ff 90deg 135deg,
+          #18e299 135deg 180deg,
           #ffd166 180deg 225deg,
           #7c5cff 225deg 270deg,
           #ff4d6d 270deg 315deg,
           #00e5ff 315deg 360deg
         );
+      overflow:hidden;
     }
-    .wheel:after{
+    .wheel::before{
       content:"";
-      position:absolute; inset: 18px;
+      position:absolute;
+      inset: 0;
       border-radius:50%;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), rgba(0,0,0,.25) 60%, rgba(0,0,0,.35));
-      border:1px solid rgba(255,255,255,.10);
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.1), transparent 70%);
+      filter: blur(2px);
+    }
+    .wheel-sector{
+      position:absolute;
+      width: 50%;
+      height: 50%;
+      left: 50%;
+      top: 0;
+      transform-origin: left bottom;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color: rgba(255,255,255,.9);
+      font-weight:900;
+      font-size: 18px;
+      text-shadow: 0 2px 8px rgba(0,0,0,.5);
+      z-index:2;
     }
     .wheel-center{
       position:absolute;
-      width: 56px; height: 56px;
+      width: 68px; height: 68px;
       border-radius:50%;
-      background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
-      border:1px solid rgba(255,255,255,.18);
-      box-shadow: 0 10px 25px rgba(0,0,0,.35);
+      background: linear-gradient(135deg, rgba(255,255,255,.25), rgba(255,255,255,.08));
+      border:2px solid rgba(255,255,255,.25);
+      box-shadow: 
+        0 15px 35px rgba(0,0,0,.5),
+        inset 0 4px 15px rgba(255,255,255,.2);
       display:flex; align-items:center; justify-content:center;
       font-weight:950;
-      z-index:2;
+      font-size: 22px;
+      z-index:3;
     }
     .pointer{
       position:absolute;
-      top: 18px;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
       width: 0; height: 0;
-      border-left: 14px solid transparent;
-      border-right: 14px solid transparent;
-      border-bottom: 24px solid rgba(255,255,255,.92);
-      filter: drop-shadow(0 8px 12px rgba(0,0,0,.4));
-      z-index:3;
+      border-left: 16px solid transparent;
+      border-right: 16px solid transparent;
+      border-bottom: 28px solid rgba(255,255,255,.95);
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,.6));
+      z-index:10;
+    }
+    .pointer::after{
+      content:"";
+      position:absolute;
+      width: 6px;
+      height: 6px;
+      background: #ff4d6d;
+      border-radius:50%;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
     }
     .result-pill{
-      padding: 10px 12px;
+      padding: 12px 16px;
       border-radius: 999px;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      color: var(--muted);
-      font-size: 12.5px;
-      font-weight:900;
+      background: linear-gradient(135deg, rgba(124,92,255,.15), rgba(0,229,255,.1));
+      border:1px solid rgba(124,92,255,.3);
+      color: #fff;
+      font-size: 14px;
+      font-weight:950;
       display:flex; align-items:center; justify-content:center;
-      gap:8px;
+      gap:10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.3);
     }
 
-    /* Crash */
+    /* Улучшенная игра Crash */
     .crash-area{
       background: rgba(0,0,0,.18);
       border:1px solid rgba(255,255,255,.10);
       border-radius: var(--radius2);
       overflow:hidden;
-      height: 280px;
+      height: 320px;
       position:relative;
       display:flex; align-items:center; justify-content:center;
     }
     .gridline{
       position:absolute; inset:0;
       background:
-        linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px) 0 0 / 36px 36px,
-        linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px) 0 0 / 36px 36px;
-      opacity:.6;
+        linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px) 0 0 / 48px 48px,
+        linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px) 0 0 / 48px 48px;
+      opacity:.4;
       pointer-events:none;
     }
     .crash-hud{
       position:absolute; top:14px; left:14px; right:14px;
       display:flex; justify-content:space-between; gap:10px; align-items:center;
-      z-index:3;
+      z-index:10;
     }
     .hud-box{
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius: 14px;
-      padding: 10px 12px;
-      min-width: 120px;
+      background: rgba(0,0,0,.65);
+      backdrop-filter: blur(10px);
+      border:1px solid rgba(255,255,255,.15);
+      border-radius: 16px;
+      padding: 12px 16px;
+      min-width: 140px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.3);
     }
-    .hud-label{ font-size:11px; color:var(--muted2); }
-    .hud-value{ font-size:18px; font-weight:950; margin-top:2px; }
-    .hud-value.good{ color: var(--good); }
-    .hud-value.bad{ color: var(--bad); }
+    .hud-label{ font-size:12px; color:var(--muted2); margin-bottom:2px; }
+    .hud-value{ font-size:22px; font-weight:950; }
+    .hud-value.good{ 
+      background: linear-gradient(135deg, #18e299, #00ffaa);
+      -webkit-background-clip:text; 
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .hud-value.bad{ 
+      background: linear-gradient(135deg, #ff4d6d, #ff6680);
+      -webkit-background-clip:text; 
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
 
-    .rocket{
+    /* Улучшенная ракета */
+    .rocket-container{
       position:absolute;
       left: 24px;
-      bottom: 30px;
-      width: 56px; height: 56px;
-      border-radius: 18px;
-      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(0,229,255,.70));
-      box-shadow: 0 18px 50px rgba(124,92,255,.22), 0 18px 50px rgba(0,229,255,.18);
-      display:flex; align-items:center; justify-content:center;
-      font-size: 26px;
-      transform: translate(0,0);
-      transition: transform .08s linear;
-      z-index:2;
+      bottom: 40px;
+      width: 70px;
+      height: 70px;
+      z-index:5;
     }
-    .trail{
+    .rocket{
+      width: 100%;
+      height: 100%;
+      position:relative;
+      transform: translate(0,0);
+      transition: transform 0.1s ease-out;
+    }
+    .rocket-body{
+      position:absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, 
+        rgba(124,92,255,1) 0%,
+        rgba(100,70,255,.9) 30%,
+        rgba(0,229,255,.85) 70%,
+        rgba(0,200,255,.8) 100%);
+      border-radius: 18px 18px 8px 8px;
+      box-shadow: 
+        0 0 40px rgba(124,92,255,.6),
+        0 0 80px rgba(0,229,255,.4),
+        0 20px 60px rgba(0,0,0,.5);
+      transform-style: preserve-3d;
+      overflow:hidden;
+    }
+    .rocket-body::before{
+      content:"";
+      position:absolute;
+      inset: 0;
+      background: linear-gradient(90deg, 
+        transparent 0%,
+        rgba(255,255,255,.2) 50%,
+        transparent 100%);
+      animation: rocketShine 2s linear infinite;
+    }
+    .rocket-window{
+      position:absolute;
+      width: 22px;
+      height: 22px;
+      background: linear-gradient(135deg, #00e5ff, #7c5cff);
+      border-radius:50%;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 
+        inset 0 0 10px rgba(255,255,255,.5),
+        0 0 15px rgba(0,229,255,.8);
+    }
+    .rocket-fins{
+      position:absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 20px;
+      display:flex;
+      justify-content:space-between;
+      padding: 0 5px;
+    }
+    .fin{
+      width: 16px;
+      height: 20px;
+      background: linear-gradient(to top, rgba(124,92,255,1), rgba(0,229,255,.9));
+      border-radius: 4px 4px 0 0;
+    }
+
+    /* Эффекты выхлопа */
+    .exhaust-container{
       position:absolute;
       left: 24px;
       bottom: 30px;
-      width: 180px; height: 180px;
-      background: radial-gradient(circle at 20% 80%, rgba(0,229,255,.20), transparent 60%),
-                  radial-gradient(circle at 50% 50%, rgba(124,92,255,.18), transparent 65%);
-      filter: blur(10px);
-      opacity:.8;
+      width: 180px;
+      height: 180px;
       pointer-events:none;
+      z-index:1;
+    }
+    .exhaust{
+      position:absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(
+        ellipse at center 80%,
+        rgba(0,229,255,.4) 0%,
+        rgba(124,92,255,.3) 30%,
+        rgba(255,77,109,.2) 60%,
+        transparent 80%
+      );
+      filter: blur(15px);
+      animation: exhaustPulse 0.3s ease-in-out infinite alternate;
+    }
+    .particle{
+      position:absolute;
+      background: rgba(255,255,255,.7);
+      border-radius:50%;
+      filter: blur(2px);
+      animation: particleFloat 1s ease-out forwards;
+    }
+
+    /* Анимация взрыва */
+    .explosion{
+      position:absolute;
+      pointer-events:none;
+      z-index:20;
+    }
+    .explosion-particle{
+      position:absolute;
+      background: radial-gradient(circle, rgba(255,77,109,.9), rgba(255,209,102,.8));
+      border-radius:50%;
+      filter: blur(4px);
+      animation: explode 0.8s ease-out forwards;
+    }
+
+    /* Эффект вибрации */
+    .vibration{
+      animation: vibrate 0.3s linear infinite;
     }
 
     .history{
@@ -398,6 +555,11 @@
       background: rgba(255,255,255,.05);
       font-weight:850;
       color: var(--text);
+      transition: transform 0.2s;
+    }
+    .hist-item:hover{
+      transform: translateX(4px);
+      background: rgba(255,255,255,.08);
     }
     .hist-left{ display:flex; gap:10px; align-items:center; }
     .tag{
@@ -408,36 +570,109 @@
       color: var(--muted);
       background: rgba(0,0,0,.18);
     }
-    .val.good{ color: var(--good); }
-    .val.bad{ color: var(--bad); }
+    .val.good{ 
+      color: var(--good);
+      text-shadow: 0 0 10px rgba(24,226,153,.3);
+    }
+    .val.bad{ 
+      color: var(--bad);
+      text-shadow: 0 0 10px rgba(255,77,109,.3);
+    }
 
     .toast{
       position:fixed;
       left:50%; bottom:92px;
       transform: translateX(-50%);
-      background: rgba(0,0,0,.72);
-      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.85);
+      backdrop-filter: blur(20px);
+      border:1px solid rgba(255,255,255,.2);
       color:#fff;
-      padding: 10px 12px;
-      border-radius: 14px;
-      font-weight:800;
-      font-size: 12.5px;
+      padding: 14px 20px;
+      border-radius: 18px;
+      font-weight:900;
+      font-size: 13.5px;
       opacity:0;
       pointer-events:none;
-      transition:.25s;
+      transition:.3s;
       z-index:999;
       max-width: 92vw;
       text-align:center;
-      backdrop-filter: blur(14px);
+      box-shadow: 0 20px 50px rgba(0,0,0,.4);
     }
-    .toast.show{ opacity:1; }
+    .toast.show{ 
+      opacity:1;
+      transform: translateX(-50%) translateY(-10px);
+    }
 
     .muted{ color: var(--muted); }
     .mono{ font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
 
     .page{ display:none; }
-    .page.active{ display:block; animation: fade .18s ease; }
-    @keyframes fade{ from{ opacity:.0; transform: translateY(6px);} to{ opacity:1; transform: translateY(0);} }
+    .page.active{ 
+      display:block; 
+      animation: fade .25s ease-out; 
+    }
+    
+    @keyframes fade{ 
+      from{ opacity:.0; transform: translateY(10px);} 
+      to{ opacity:1; transform: translateY(0);} 
+    }
+    
+    @keyframes rocketShine{
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    @keyframes exhaustPulse{
+      from{ 
+        opacity: 0.8;
+        transform: scale(0.95);
+      }
+      to{ 
+        opacity: 1;
+        transform: scale(1.05);
+      }
+    }
+    
+    @keyframes particleFloat{
+      0%{
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      100%{
+        transform: translateY(-100px) scale(0);
+        opacity: 0;
+      }
+    }
+    
+    @keyframes explode{
+      0%{
+        transform: translate(0,0) scale(0);
+        opacity: 1;
+      }
+      100%{
+        transform: translate(var(--tx), var(--ty)) scale(1);
+        opacity: 0;
+      }
+    }
+    
+    @keyframes vibrate{
+      0%, 100% { transform: translate(0,0) rotate(0deg); }
+      20% { transform: translate(-2px, 2px) rotate(-1deg); }
+      40% { transform: translate(2px, -2px) rotate(1deg); }
+      60% { transform: translate(-2px, -2px) rotate(0deg); }
+      80% { transform: translate(2px, 2px) rotate(1deg); }
+    }
+    
+    @keyframes pulse{
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    @keyframes glow{
+      0%, 100% { box-shadow: 0 0 20px rgba(124,92,255,.3); }
+      50% { box-shadow: 0 0 40px rgba(124,92,255,.6); }
+    }
 
     .mini-note{
       margin-top: 10px;
@@ -447,8 +682,20 @@
     }
     .divider{
       height:1px;
-      background: rgba(255,255,255,.10);
-      margin: 12px 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
+      margin: 16px 0;
+    }
+    
+    .premium-badge{
+      display:inline-block;
+      padding: 4px 10px;
+      border-radius:12px;
+      background: linear-gradient(135deg, #ffd166, #ff9e00);
+      color:#000;
+      font-weight:900;
+      font-size:11px;
+      margin-left:8px;
+      animation: pulse 2s infinite;
     }
   </style>
 </head>
@@ -457,10 +704,10 @@
     <div class="topbar">
       <div class="topbar-inner">
         <div class="brand">
-          <div class="logo">G</div>
+          <div class="logo" style="animation: glow 3s infinite;">🚀</div>
           <div>
-            <h1>Gift Mini <span class="muted">Demo</span></h1>
-            <p>Рулетка + Ракета • Демо-режим</p>
+            <h1>Gift Mini <span class="muted">Enhanced</span> <span class="premium-badge">PREMIUM</span></h1>
+            <p>Улучшенная графика • Эффекты • Анимации</p>
           </div>
         </div>
         <div class="balance">
@@ -486,23 +733,23 @@
       <div class="page active" id="page-home">
         <div class="card">
           <div class="title">
-            <h2>⚡ Быстрый старт</h2>
-            <div class="chip">min $1 • max $250</div>
+            <h2>⚡ Улучшенный игровой опыт</h2>
+            <div class="chip" style="animation: pulse 2s infinite;">new effects</div>
           </div>
 
           <div class="grid2">
-            <div class="card small">
-              <div class="title"><h2>🎰 Рулетка</h2><div class="chip">x0 / x2 / x5</div></div>
-              <div class="mini-note">Ставка → крутим → результат. Профит зависит от сектора.</div>
+            <div class="card small" style="animation: glow 4s infinite;">
+              <div class="title"><h2>🎰 Премиум Рулетка</h2><div class="chip">3D эффекты</div></div>
+              <div class="mini-note">Детализированные сектора, плавная анимация, улучшенная физика вращения</div>
               <div class="btnrow">
-                <button class="btn primary" onclick="go('roulette')">Открыть</button>
+                <button class="btn primary" onclick="go('roulette')">Играть</button>
               </div>
             </div>
-            <div class="card small">
-              <div class="title"><h2>🚀 Ракета</h2><div class="chip">Cashout</div></div>
-              <div class="mini-note">Коэфф растёт → успей забрать до краша.</div>
+            <div class="card small" style="animation: glow 4s infinite 1s;">
+              <div class="title"><h2>🚀 Ракета Pro</h2><div class="chip">Вибро+эффекты</div></div>
+              <div class="mini-note">Детальная ракета, эффекты взлета, вибрация при краше, частицы</div>
               <div class="btnrow">
-                <button class="btn primary" onclick="go('crash')">Открыть</button>
+                <button class="btn primary" onclick="go('crash')">Запуск</button>
               </div>
             </div>
           </div>
@@ -510,12 +757,16 @@
           <div class="divider"></div>
 
           <div class="title">
-            <h2>🧪 Демо-режим</h2>
-            <div class="chip">без платежей</div>
+            <h2>🎨 Новые возможности</h2>
+            <div class="chip">enhanced</div>
           </div>
           <div class="mini-note">
-            Это тестовая мини-аппка. Баланс и результаты — симуляция.
-            Можно легко подключить реальный бэкенд позже.
+            • Детализированная 3D ракета с анимацией<br>
+            • Эффекты выхлопа и частиц при полете<br>
+            • Виброэффекты при краше<br>
+            • Улучшенная рулетка с секторами<br>
+            • Плавные переходы и анимации<br>
+            • Премиум интерфейс с градиентами
           </div>
         </div>
       </div>
@@ -524,15 +775,17 @@
       <div class="page" id="page-roulette">
         <div class="card">
           <div class="title">
-            <h2>🎰 Рулетка</h2>
+            <h2>🎰 Премиум Рулетка</h2>
             <div class="chip mono" id="rou-state">готово</div>
           </div>
 
           <div class="roulette-wrap">
             <div class="wheel-area">
               <div class="pointer"></div>
-              <div class="wheel" id="wheel"></div>
-              <div class="wheel-center">🎁</div>
+              <div class="wheel-container">
+                <div class="wheel" id="wheel"></div>
+                <div class="wheel-center">🎁</div>
+              </div>
             </div>
 
             <div class="grid2">
@@ -553,7 +806,7 @@
             </div>
 
             <div class="hint">
-              Сектора: <b>x0</b> (проигрыш), <b>x2</b>, <b>x5</b>. Шансы разные — это демо, но выглядит “как надо”.
+              Сектора: <b style="color:#ff4d6d">x0</b> (проигрыш), <b style="color:#18e299">x2</b>, <b style="color:#ffd166">x5</b>. Улучшенная физика вращения.
             </div>
           </div>
         </div>
@@ -563,26 +816,39 @@
       <div class="page" id="page-crash">
         <div class="card">
           <div class="title">
-            <h2>🚀 Ракета</h2>
+            <h2>🚀 Ракета Pro</h2>
             <div class="chip mono" id="crash-state">ожидание</div>
           </div>
 
           <div class="crash-area" id="crash-area">
             <div class="gridline"></div>
-            <div class="trail" id="trail"></div>
+            
+            <div class="exhaust-container" id="exhaust-container">
+              <div class="exhaust"></div>
+            </div>
 
             <div class="crash-hud">
               <div class="hud-box">
-                <div class="hud-label">Коэфф</div>
+                <div class="hud-label">Множитель</div>
                 <div class="hud-value mono" id="crash-mult">1.00x</div>
               </div>
               <div class="hud-box" style="text-align:right;">
                 <div class="hud-label">Статус</div>
-                <div class="hud-value mono" id="crash-status">READY</div>
+                <div class="hud-value mono good" id="crash-status">ГОТОВО</div>
               </div>
             </div>
 
-            <div class="rocket" id="rocket">🚀</div>
+            <div class="rocket-container" id="rocket-container">
+              <div class="rocket" id="rocket">
+                <div class="rocket-body">
+                  <div class="rocket-window"></div>
+                  <div class="rocket-fins">
+                    <div class="fin"></div>
+                    <div class="fin"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="inputs">
@@ -597,13 +863,13 @@
           </div>
 
           <div class="btnrow">
-            <button class="btn primary" id="crash-start" onclick="startCrash()">Старт</button>
+            <button class="btn primary" id="crash-start" onclick="startCrash()">Запуск 🚀</button>
             <button class="btn danger" id="crash-cashout" onclick="cashoutCrash()" disabled>Забрать 💰</button>
             <button class="btn ghost" onclick="setBetQuick('crash-bet', 25)">x25</button>
           </div>
 
           <div class="hint">
-            Жми <b>Старт</b>, потом успей <b>Забрать</b> до краша. Если включишь авто-кэшаут — снимет сам.
+            Ракета взлетает с эффектами выхлопа • Вибрация при краше • Детализированная графика
           </div>
         </div>
       </div>
@@ -612,11 +878,11 @@
       <div class="page" id="page-history">
         <div class="card">
           <div class="title">
-            <h2>📜 История</h2>
+            <h2>📜 История игр</h2>
             <div class="chip" onclick="resetDemo()" style="cursor:pointer;">Сброс</div>
           </div>
           <div class="history" id="history"></div>
-          <div class="mini-note">Хранится локально (localStorage). В Telegram тоже работает.</div>
+          <div class="mini-note">Все игры сохраняются локально. В демо-режиме работают все эффекты.</div>
         </div>
       </div>
 
@@ -624,35 +890,45 @@
       <div class="page" id="page-settings">
         <div class="card">
           <div class="title">
-            <h2>⚙️ Настройки</h2>
-            <div class="chip">demo</div>
+            <h2>⚙️ Настройки эффектов</h2>
+            <div class="chip">premium</div>
           </div>
 
           <div class="grid2">
             <div class="card small">
-              <div class="title"><h2>💵 Баланс</h2><div class="chip">локально</div></div>
-              <div class="mini-note">Можно “пополнить” демо-баланс, чтобы тестить механику.</div>
+              <div class="title"><h2>💎 Эффекты</h2><div class="chip">вкл/выкл</div></div>
+              <div class="mini-note">Управление визуальными эффектами и анимациями</div>
               <div class="btnrow">
-                <button class="btn ghost" onclick="addBalance(100)">+100</button>
-                <button class="btn ghost" onclick="addBalance(500)">+500</button>
-                <button class="btn ghost" onclick="addBalance(1000)">+1000</button>
+                <button class="btn ghost" onclick="toggleEffect('particles')" id="btn-particles">Частицы: ВКЛ</button>
+                <button class="btn ghost" onclick="toggleEffect('vibration')" id="btn-vibration">Вибрация: ВКЛ</button>
               </div>
             </div>
 
             <div class="card small">
-              <div class="title"><h2>🧩 Интерфейс</h2><div class="chip">tg</div></div>
-              <div class="mini-note">Подхватываем тему Telegram (если доступно) и делаем expand.</div>
+              <div class="title"><h2>🎨 Графика</h2><div class="chip">качество</div></div>
+              <div class="mini-note">Настройки графики и производительности</div>
               <div class="btnrow">
-                <button class="btn primary" onclick="applyTelegram()">Применить</button>
-                <button class="btn ghost" onclick="toast('Ок 👍')">Тест</button>
+                <button class="btn primary" onclick="setGraphics('high')">Высокая</button>
+                <button class="btn ghost" onclick="setGraphics('medium')">Средняя</button>
               </div>
             </div>
           </div>
 
           <div class="divider"></div>
 
+          <div class="title">
+            <h2>💵 Демо-баланс</h2>
+            <div class="chip">тестовый</div>
+          </div>
+          <div class="btnrow">
+            <button class="btn ghost" onclick="addBalance(100)">+100</button>
+            <button class="btn ghost" onclick="addBalance(500)">+500</button>
+            <button class="btn ghost" onclick="addBalance(1000)">+1000</button>
+            <button class="btn danger" onclick="resetBalance()">Сброс</button>
+          </div>
+
           <div class="mini-note">
-            Хочешь потом “как в настоящем” — подключим бэкенд: история раундов, ставки, честная рулетка, анти-чит.
+            Включены все премиум-эффекты: анимация ракеты, частицы, вибрация, улучшенная рулетка.
           </div>
         </div>
       </div>
@@ -689,6 +965,11 @@ const S = {
   history: [],
   rouletteSpinning: false,
   wheelTurns: 0,
+  effects: {
+    particles: true,
+    vibration: true,
+    graphics: 'high'
+  },
 
   crash: {
     running: false,
@@ -708,18 +989,21 @@ function money(n){
 }
 function load(){
   try{
-    const raw = localStorage.getItem("giftmini_demo");
+    const raw = localStorage.getItem("giftmini_enhanced");
     if(raw){
       const data = JSON.parse(raw);
       if(typeof data.balance === "number") S.balance = data.balance;
       if(Array.isArray(data.history)) S.history = data.history.slice(0, 60);
+      if(data.effects) S.effects = {...S.effects, ...data.effects};
     }
   }catch(e){}
+  updateEffectsUI();
 }
 function save(){
-  localStorage.setItem("giftmini_demo", JSON.stringify({
+  localStorage.setItem("giftmini_enhanced", JSON.stringify({
     balance: S.balance,
-    history: S.history
+    history: S.history,
+    effects: S.effects
   }));
 }
 function setBalance(v){
@@ -727,10 +1011,15 @@ function setBalance(v){
   $("balance").textContent = `$ ${money(S.balance)}`;
   save();
 }
+function resetBalance(){
+  setBalance(1000);
+  toast("Баланс сброшен");
+}
 function addBalance(v){
   setBalance(S.balance + v);
-  addHist("system", `+ $${money(v)}`, "+", v);
+  addHist("system", `Пополнение +$${money(v)}`, "+", v);
   toast(`Баланс +$${money(v)}`);
+  createParticles($("balance"), 10, ['#ffd166', '#18e299']);
 }
 function addHist(type, label, sign, delta, extra={}){
   S.history.unshift({
@@ -775,7 +1064,94 @@ function toast(text){
   const t = $("toast");
   t.textContent = text;
   t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"), 1400);
+  setTimeout(()=>{
+    t.classList.remove("show");
+  }, 1400);
+}
+
+/* -----------------------------
+   Effects System
+------------------------------*/
+function toggleEffect(effect){
+  S.effects[effect] = !S.effects[effect];
+  save();
+  updateEffectsUI();
+  toast(`${effect === 'particles' ? 'Частицы' : 'Вибрация'}: ${S.effects[effect] ? 'ВКЛ' : 'ВЫКЛ'}`);
+}
+
+function setGraphics(level){
+  S.effects.graphics = level;
+  save();
+  toast(`Графика: ${level === 'high' ? 'Высокая' : 'Средняя'}`);
+}
+
+function updateEffectsUI(){
+  $("btn-particles").textContent = `Частицы: ${S.effects.particles ? 'ВКЛ' : 'ВЫКЛ'}`;
+  $("btn-vibration").textContent = `Вибрация: ${S.effects.vibration ? 'ВКЛ' : 'ВЫКЛ'}`;
+}
+
+function createParticles(element, count, colors){
+  if(!S.effects.particles) return;
+  
+  const rect = element.getBoundingClientRect();
+  const x = rect.left + rect.width/2;
+  const y = rect.top + rect.height/2;
+  
+  for(let i = 0; i < count; i++){
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.width = Math.random() * 8 + 4 + 'px';
+    particle.style.height = particle.style.width;
+    particle.style.left = x + 'px';
+    particle.style.top = y + 'px';
+    particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+    particle.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
+    
+    document.body.appendChild(particle);
+    setTimeout(() => particle.remove(), 1000);
+  }
+}
+
+function createExplosion(x, y){
+  if(!S.effects.particles) return;
+  
+  const explosion = document.createElement('div');
+  explosion.className = 'explosion';
+  explosion.style.left = x + 'px';
+  explosion.style.top = y + 'px';
+  
+  document.body.appendChild(explosion);
+  
+  for(let i = 0; i < 15; i++){
+    const particle = document.createElement('div');
+    particle.className = 'explosion-particle';
+    const size = Math.random() * 20 + 10;
+    particle.style.width = size + 'px';
+    particle.style.height = size + 'px';
+    particle.style.left = '0px';
+    particle.style.top = '0px';
+    
+    const angle = Math.random() * Math.PI * 2;
+    const distance = Math.random() * 80 + 40;
+    particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+    particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+    
+    explosion.appendChild(particle);
+  }
+  
+  setTimeout(() => explosion.remove(), 1000);
+}
+
+function vibrate(element, intensity = 1){
+  if(!S.effects.vibration) return;
+  
+  element.classList.add('vibration');
+  if(tg?.HapticFeedback && S.effects.vibration){
+    tg.HapticFeedback.impactOccurred('heavy');
+  }
+  setTimeout(() => {
+    element.classList.remove('vibration');
+  }, 300);
 }
 
 /* -----------------------------
@@ -792,9 +1168,31 @@ function go(page){
 }
 
 /* -----------------------------
-   Roulette logic (demo)
-   sectors: x0(40%), x2(45%), x5(15%)
+   Enhanced Roulette
 ------------------------------*/
+function initRouletteWheel(){
+  const wheel = $("wheel");
+  const sectors = [
+    {mult: 0, label: "x0", color: "#ff4d6d"},
+    {mult: 2, label: "x2", color: "#7c5cff"},
+    {mult: 5, label: "x5", color: "#00e5ff"},
+    {mult: 2, label: "x2", color: "#18e299"},
+    {mult: 0, label: "x0", color: "#ffd166"},
+    {mult: 2, label: "x2", color: "#7c5cff"},
+    {mult: 5, label: "x5", color: "#ff4d6d"},
+    {mult: 2, label: "x2", color: "#00e5ff"}
+  ];
+  
+  wheel.innerHTML = '';
+  sectors.forEach((sector, i) => {
+    const sectorEl = document.createElement('div');
+    sectorEl.className = 'wheel-sector';
+    sectorEl.style.transform = `rotate(${i * 45}deg)`;
+    sectorEl.innerHTML = `<div style="transform: rotate(${22.5}deg);">${sector.label}</div>`;
+    wheel.appendChild(sectorEl);
+  });
+}
+
 function setBetQuick(id, val){
   $(id).value = val;
   if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
@@ -809,9 +1207,9 @@ function clampBet(v){
 
 function pickRouletteOutcome(){
   const r = Math.random();
-  if (r < 0.40) return {mult:0, label:"x0", color:"lose"};
-  if (r < 0.85) return {mult:2, label:"x2", color:"win"};
-  return {mult:5, label:"x5", color:"win"};
+  if (r < 0.40) return {mult:0, label:"x0", color:"#ff4d6d"};
+  if (r < 0.85) return {mult:2, label:"x2", color:"#18e299"};
+  return {mult:5, label:"x5", color:"#ffd166"};
 }
 
 function spinRoulette(){
@@ -832,18 +1230,18 @@ function spinRoulette(){
   addHist("roulette", `Ставка $${money(bet)}`, "-", -bet);
 
   const out = pickRouletteOutcome();
-
-  // We rotate to a pseudo sector depending on outcome
-  // 8 sectors: [x2,x2,x0,x2,x5,x2,x0,x2] style mapping
-  const sectorMap = out.mult === 0 ? [2,6] : out.mult === 5 ? [4] : [0,1,3,5,7];
+  const sectorMap = out.mult === 0 ? [0,4] : out.mult === 5 ? [2,6] : [1,3,5,7];
   const sector = sectorMap[Math.floor(Math.random()*sectorMap.length)];
-  const baseDeg = sector * 45 + 22.5; // center of sector
+  const baseDeg = sector * 45 + 22.5;
   S.wheelTurns += 1;
-  const spins = 6 + Math.floor(Math.random()*3); // 6..8 turns
+  const spins = 6 + Math.floor(Math.random()*3);
   const deg = spins*360 + baseDeg;
 
   const wheel = $("wheel");
+  wheel.style.transition = `transform 4.5s cubic-bezier(.1,.8,.1,1)`;
   wheel.style.transform = `rotate(${deg}deg)`;
+
+  createParticles($("rou-spin"), 20, ['#7c5cff', '#00e5ff']);
 
   setTimeout(()=>{
     const win = bet * out.mult;
@@ -851,30 +1249,53 @@ function spinRoulette(){
       setBalance(S.balance + win);
       addHist("roulette", `Выигрыш ${out.label}`, "+", win);
       $("rou-result").textContent = `${out.label} • +$${money(win)}`;
+      $("rou-result").style.background = `linear-gradient(135deg, ${out.color}99, ${out.color}33)`;
+      $("rou-result").style.borderColor = out.color;
       toast(`Профит +$${money(win)}`);
+      createParticles($("rou-result"), 15, [out.color, '#ffffff']);
       if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
     } else {
       $("rou-result").textContent = `${out.label} • -$${money(bet)}`;
+      $("rou-result").style.background = `linear-gradient(135deg, #ff4d6d99, #ff4d6d33)`;
+      $("rou-result").style.borderColor = '#ff4d6d';
       toast("Не повезло 😅");
       if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
     }
     $("rou-state").textContent = "готово";
     S.rouletteSpinning = false;
     $("rou-spin").disabled = false;
-  }, 4300);
+  }, 4800);
 }
 
 /* -----------------------------
-   Crash logic (demo)
-   crashAt is random ~ 1.2..8.0 with skew
+   Enhanced Crash Game
 ------------------------------*/
 let crashTimer = null;
+let rocketY = 0;
 
 function pickCrashAt(){
-  // skewed distribution: most often 1.2..3.0, sometimes higher
   const r = Math.random();
-  const base = 1.15 + Math.pow(r, 2.2) * 7.0; // 1.15..8.15
+  const base = 1.15 + Math.pow(r, 2.2) * 7.0;
   return Math.max(1.15, Math.min(12, base));
+}
+
+function createExhaustParticles(){
+  if(!S.effects.particles) return;
+  
+  const exhaust = $("exhaust-container");
+  for(let i = 0; i < 3; i++){
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.width = Math.random() * 6 + 3 + 'px';
+    particle.style.height = particle.style.width;
+    particle.style.left = Math.random() * 40 + 20 + 'px';
+    particle.style.top = Math.random() * 40 + 140 + 'px';
+    particle.style.background = Math.random() > 0.5 ? '#00e5ff' : '#7c5cff';
+    particle.style.animationDuration = (Math.random() * 0.3 + 0.3) + 's';
+    
+    exhaust.appendChild(particle);
+    setTimeout(() => particle.remove(), 300);
+  }
 }
 
 function startCrash(){
@@ -893,41 +1314,57 @@ function startCrash(){
   S.crash.crashAt = pickCrashAt();
   S.crash.running = true;
   S.crash.cashed = false;
+  rocketY = 0;
 
   setBalance(S.balance - bet);
-  addHist("crash", `Ставка $${money(bet)}`, "-", -bet);
+  addHist("crash", `Запуск ракеты $${money(bet)}`, "-", -bet);
 
-  $("crash-state").textContent = "в игре";
-  $("crash-status").textContent = "FLYING";
+  $("crash-state").textContent = "полет";
+  $("crash-status").textContent = "ВЗЛЕТ";
+  $("crash-status").className = "hud-value mono good";
   $("crash-mult").textContent = "1.00x";
   $("crash-cashout").disabled = false;
   $("crash-start").disabled = true;
 
-  if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-
-  // animate
   const rocket = $("rocket");
   rocket.style.transform = `translate(0px, 0px)`;
 
+  // Эффект запуска
+  createParticles($("crash-start"), 25, ['#00e5ff', '#7c5cff', '#ffffff']);
+  if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
   const started = performance.now();
   crashTimer = setInterval(()=>{
-    const t = (performance.now() - started) / 1000; // seconds
-    // multiplier growth curve
+    const t = (performance.now() - started) / 1000;
     const m = 1 + (t * 0.85) + (t*t * 0.12);
     S.crash.mult = Number(m.toFixed(2));
+    
+    // Анимация ракеты
+    rocketY = Math.min(220, t * 90);
+    const rocketX = Math.min(520, 20 + t * 120);
+    const rotation = Math.sin(t * 2) * 2;
+    
+    rocket.style.transform = `translate(${rocketX}px, -${rocketY}px) rotate(${rotation}deg)`;
     $("crash-mult").textContent = `${S.crash.mult.toFixed(2)}x`;
-
-    // rocket movement (x right, y up)
-    const x = Math.min(520, 20 + t*120);
-    const y = Math.min(200, 10 + t*70);
-    rocket.style.transform = `translate(${x}px, -${y}px)`;
-
-    // auto cashout
+    
+    // Эффект ускорения
+    if(S.effects.particles && t < 3){
+      createExhaustParticles();
+    }
+    
+    // Обновление цвета множителя
+    if(S.crash.mult > 3){
+      $("crash-mult").className = "hud-value mono good";
+    } else if(S.crash.mult > 1.5){
+      $("crash-mult").className = "hud-value mono";
+    }
+    
+    // Авто-кэшаут
     if (S.crash.auto && !S.crash.cashed && S.crash.mult >= S.crash.auto){
       cashoutCrash(true);
     }
-
-    // crash check
+    
+    // Проверка краша
     if (S.crash.mult >= S.crash.crashAt){
       endCrash(false);
     }
@@ -943,35 +1380,57 @@ function cashoutCrash(auto=false){
   setBalance(S.balance + win);
   addHist("crash", `Кэшаут ${S.crash.mult.toFixed(2)}x`, "+", win);
 
-  $("crash-status").textContent = auto ? "AUTO CASH" : "CASHED";
+  $("crash-status").textContent = auto ? "АВТО КЭШ" : "УСПЕХ";
+  $("crash-status").className = "hud-value mono good";
   $("crash-cashout").disabled = true;
 
+  // Эффекты при успешном кэшауте
+  createParticles($("crash-cashout"), 30, ['#18e299', '#00ffaa', '#ffffff']);
   toast(`Забрал +$${money(win)}`);
+  
   if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-
-  // keep running until crash, but no more cashouts
 }
 
 function endCrash(winAlready){
   clearInterval(crashTimer);
   crashTimer = null;
 
-  $("crash-state").textContent = "конец";
-  $("crash-status").textContent = "CRASH";
+  $("crash-state").textContent = "краш";
+  $("crash-status").textContent = "КРАШ";
+  $("crash-status").className = "hud-value mono bad";
   $("crash-cashout").disabled = true;
   $("crash-start").disabled = false;
 
   const rocket = $("rocket");
-  rocket.style.transform += " rotate(12deg)";
+  const container = $("rocket-container");
+  
+  // Эффект взрыва
+  const rect = rocket.getBoundingClientRect();
+  createExplosion(rect.left + rect.width/2, rect.top + rect.height/2);
+  
+  // Вибрация
+  vibrate(container);
+  vibrate($("crash-area"));
+  
+  // Анимация падения ракеты
+  rocket.style.transition = 'transform 1.5s cubic-bezier(.1,.9,.1,1)';
+  rocket.style.transform = `translate(${Math.min(520, 20 + 120)}px, 100px) rotate(180deg)`;
+  
   if (!S.crash.cashed){
-    addHist("crash", `Краш на ${S.crash.crashAt.toFixed(2)}x`, "-", 0);
-    toast("Краш! Не успел 😅");
+    addHist("crash", `Краш на ${S.crash.crashAt.toFixed(2)}x`, "-", S.crash.bet);
+    toast("Краш! Ракета взорвалась 💥");
     if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
   } else {
     addHist("crash", `Краш на ${S.crash.crashAt.toFixed(2)}x`, "+", 0);
   }
 
   S.crash.running = false;
+  
+  // Возврат ракеты в исходное положение
+  setTimeout(() => {
+    rocket.style.transition = 'transform 0.5s ease-out';
+    rocket.style.transform = `translate(0px, 0px) rotate(0deg)`;
+  }, 1500);
 }
 
 function resetDemo(){
@@ -982,7 +1441,7 @@ function resetDemo(){
   save();
   setBalance(S.balance);
   renderHistory();
-  toast("Сброшено");
+  toast("История сброшена");
 }
 
 /* -----------------------------
@@ -992,7 +1451,7 @@ function applyTelegram(){
   if (!tg){ toast("Открывай в Telegram"); return; }
   tg.expand();
   tg.ready();
-  toast("Применено ✅");
+  toast("Telegram применен ✅");
 }
 
 /* -----------------------------
@@ -1002,20 +1461,26 @@ function init(){
   load();
   setBalance(S.balance);
   renderHistory();
+  initRouletteWheel();
 
-  // uid display
   if (tg?.initDataUnsafe?.user?.id){
     $("uid").textContent = "ID: " + tg.initDataUnsafe.user.id;
   } else {
     $("uid").textContent = "ID: demo";
   }
 
-  // tab click
   document.querySelectorAll(".tab").forEach(t=>{
     t.addEventListener("click", ()=>go(t.dataset.page));
   });
-
-  // stop crash if you leave crash page? (keep running)
+  
+  // Добавляем частицы при клике на кнопки
+  document.querySelectorAll('.btn.primary').forEach(btn => {
+    btn.addEventListener('click', function() {
+      if(S.effects.particles){
+        createParticles(this, 10, ['#7c5cff', '#00e5ff']);
+      }
+    });
+  });
 }
 init();
 </script>
