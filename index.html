@@ -1,1072 +1,1023 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Crypto Tracker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Gift Mini — Demo</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-    :root[data-theme="dark"] {
-      --bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      --bg-secondary: rgba(255, 255, 255, 0.05);
-      --bg-card: rgba(255, 255, 255, 0.08);
-      --bg-hover: rgba(255, 255, 255, 0.12);
-      --text-primary: #ffffff;
-      --text-secondary: rgba(255, 255, 255, 0.7);
-      --border-color: rgba(255, 255, 255, 0.1);
-      --shadow: rgba(0, 0, 0, 0.3);
-      --accent: #667eea;
-      --accent-glow: rgba(102, 126, 234, 0.3);
+    :root{
+      --bg:#070A12;
+      --bg2:#0B1022;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.08);
+      --stroke: rgba(255,255,255,.10);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.65);
+      --muted2: rgba(255,255,255,.45);
+      --good:#18e299;
+      --bad:#ff4d6d;
+      --accent:#7c5cff;
+      --accent2:#00e5ff;
+      --gold:#ffd166;
+      --shadow: rgba(0,0,0,.35);
+      --glow: rgba(124,92,255,.22);
+      --glow2: rgba(0,229,255,.18);
+      --radius: 18px;
+      --radius2: 26px;
+      --pad: 16px;
+      --pad2: 20px;
     }
 
-    :root[data-theme="light"] {
-      --bg-primary: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      --bg-secondary: rgba(0, 0, 0, 0.03);
-      --bg-card: rgba(255, 255, 255, 0.9);
-      --bg-hover: rgba(0, 0, 0, 0.05);
-      --text-primary: #1a1a2e;
-      --text-secondary: rgba(0, 0, 0, 0.6);
-      --border-color: rgba(0, 0, 0, 0.1);
-      --shadow: rgba(0, 0, 0, 0.1);
-      --accent: #667eea;
-      --accent-glow: rgba(102, 126, 234, 0.2);
+    *{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent; }
+    body{
+      font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Inter,Arial,sans-serif;
+      background:
+        radial-gradient(900px 600px at 15% 10%, rgba(124,92,255,.18), transparent 55%),
+        radial-gradient(900px 700px at 85% 20%, rgba(0,229,255,.14), transparent 55%),
+        radial-gradient(900px 700px at 55% 90%, rgba(255,209,102,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg) 0%, #05060c 100%);
+      color: var(--text);
+      min-height:100vh;
+      overflow-x:hidden;
     }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg-primary);
-      min-height: 100vh;
-      overflow-x: hidden;
-      color: var(--text-primary);
-      transition: all 0.3s ease;
+    .wrap{ max-width:640px; margin:0 auto; padding:18px; padding-bottom:92px; position:relative; }
+    .topbar{
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+      border:1px solid var(--stroke);
+      border-radius: var(--radius2);
+      padding: 16px;
+      box-shadow: 0 12px 40px var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .topbar:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(circle at 20% 10%, rgba(124,92,255,.26), transparent 55%),
+                  radial-gradient(circle at 80% 20%, rgba(0,229,255,.20), transparent 55%);
+      filter: blur(12px);
+      opacity:.9;
+      pointer-events:none;
+    }
+    .topbar-inner{ position:relative; display:flex; gap:12px; align-items:center; justify-content:space-between; }
+
+    .brand{
+      display:flex; align-items:center; gap:12px;
+    }
+    .logo{
+      width:44px; height:44px; border-radius:14px;
+      background: linear-gradient(135deg, rgba(124,92,255,.9), rgba(0,229,255,.7));
+      box-shadow: 0 12px 26px var(--glow), 0 12px 26px var(--glow2);
+      display:flex; align-items:center; justify-content:center;
+      font-weight:800;
+      letter-spacing:.5px;
+    }
+    .brand h1{
+      font-size: 17px;
+      line-height:1.1;
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    .brand p{
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top:2px;
     }
 
-    .particles {
-      position: fixed; width: 100%; height: 100%;
-      overflow: hidden; z-index: 0; pointer-events: none;
+    .balance{
+      display:flex; flex-direction:column; align-items:flex-end;
+      gap:4px;
+      min-width:140px;
     }
-    .particle {
-      position: absolute;
-      background: var(--accent);
-      border-radius: 50%;
-      opacity: 0.3;
-      animation: float 20s infinite;
+    .bal-label{ font-size:12px; color:var(--muted2); }
+    .bal-value{
+      font-size:18px; font-weight:900;
+      background: linear-gradient(135deg, var(--gold), #fff);
+      -webkit-background-clip:text; background-clip:text;
+      -webkit-text-fill-color:transparent;
     }
-    @keyframes float {
-      0%, 100% { transform: translateY(0) translateX(0); }
-      25% { transform: translateY(-100px) translateX(50px); }
-      50% { transform: translateY(-50px) translateX(-50px); }
-      75% { transform: translateY(-150px) translateX(100px); }
-    }
+    .bal-sub{ font-size:11.5px; color:var(--muted); }
 
-    .container { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+    .row{ display:grid; gap:14px; margin-top:14px; }
+    .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
 
-    .header {
-      background: var(--bg-card);
-      backdrop-filter: blur(20px);
-      border-radius: 25px;
-      padding: 25px;
-      margin-bottom: 20px;
-      box-shadow: 0 10px 40px var(--shadow);
-      border: 1px solid var(--border-color);
-      position: relative;
-      overflow: hidden;
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      padding: var(--pad2);
+      box-shadow: 0 14px 40px var(--shadow);
+      position:relative;
+      overflow:hidden;
     }
-    .header::before {
-      content: '';
-      position: absolute; top: -50%; left: -50%;
-      width: 200%; height: 200%;
-      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-      animation: pulse 4s infinite;
+    .card.small{ padding:14px; }
+    .card:before{
+      content:"";
+      position:absolute; inset:-1px;
+      background: radial-gradient(circle at 10% 10%, rgba(124,92,255,.22), transparent 60%),
+                  radial-gradient(circle at 90% 20%, rgba(0,229,255,.16), transparent 60%);
+      opacity:.65;
+      pointer-events:none;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 0.5; transform: scale(1); }
-      50% { opacity: 0.8; transform: scale(1.1); }
-    }
-    .header-content { position: relative; z-index: 1; }
-    .header h1 {
-      font-size: 2em;
-      margin-bottom: 10px;
-      background: linear-gradient(135deg, var(--accent) 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+    .card > *{ position:relative; }
 
-    .market-summary {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
-      margin-top: 20px;
+    .tabs{
+      display:flex; gap:10px; overflow-x:auto; padding-bottom:2px;
     }
-    .summary-card {
-      background: var(--bg-secondary);
-      padding: 15px;
-      border-radius: 15px;
-      text-align: center;
-      border: 1px solid var(--border-color);
-    }
-    .summary-label { font-size: 0.85em; color: var(--text-secondary); margin-bottom: 8px; }
-    .summary-value { font-size: 1.3em; font-weight: bold; color: var(--accent); }
-
-    .controls { display: flex; gap: 10px; margin-bottom: 20px; }
-    .search-box {
-      flex: 1;
-      background: var(--bg-card);
-      border: 2px solid var(--border-color);
-      border-radius: 15px;
-      padding: 15px 20px;
-      font-size: 1em;
-      color: var(--text-primary);
-      backdrop-filter: blur(20px);
-      transition: all 0.3s;
-    }
-    .search-box:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); }
-    .search-box::placeholder { color: var(--text-secondary); }
-
-    .refresh-btn {
-      background: var(--accent);
-      border: none;
-      color: white;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      font-size: 1.5em;
-      cursor: pointer;
-      box-shadow: 0 5px 20px var(--accent-glow);
-      transition: all 0.3s;
-    }
-    .refresh-btn:active { transform: scale(0.9) rotate(180deg); }
-    .refresh-btn.spinning { animation: spin 1s linear infinite; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-    .category-tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      overflow-x: auto;
-      padding-bottom: 10px;
-    }
-    .category-tabs::-webkit-scrollbar { height: 4px; }
-    .category-tabs::-webkit-scrollbar-track { background: var(--bg-secondary); border-radius: 2px; }
-    .category-tabs::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
-    .category-tab {
-      background: var(--bg-card);
-      border: 2px solid var(--border-color);
-      border-radius: 12px;
-      padding: 12px 20px;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-weight: 600;
-      user-select: none;
-    }
-    .category-tab:active { transform: scale(0.95); }
-    .category-tab.active { background: var(--accent); border-color: var(--accent); color: white; }
-
-    .crypto-grid { display: grid; gap: 15px; margin-bottom: 80px; }
-
-    .crypto-card {
-      background: var(--bg-card);
-      backdrop-filter: blur(20px);
-      border-radius: 20px;
-      padding: 20px;
-      border: 1px solid var(--border-color);
-      cursor: pointer;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-    .crypto-card:hover { background: var(--bg-hover); transform: translateY(-5px); box-shadow: 0 15px 40px var(--shadow); }
-    .crypto-card::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--accent) 0%, #764ba2 100%);
-      transform: scaleX(0);
-      transition: transform 0.3s;
-    }
-    .crypto-card:hover::before { transform: scaleX(1); }
-
-    .crypto-header { display: flex; align-items: center; margin-bottom: 15px; }
-    .crypto-icon {
-      width: 50px; height: 50px;
-      border-radius: 50%;
-      background: var(--accent);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.5em;
-      margin-right: 15px;
-      box-shadow: 0 5px 15px var(--accent-glow);
-      overflow: hidden;
-    }
-    .crypto-icon img { width: 100%; height: 100%; object-fit: cover; }
-    .crypto-info { flex: 1; }
-    .crypto-name { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
-    .crypto-symbol { color: var(--text-secondary); font-size: 0.9em; }
-
-    .crypto-price { font-size: 1.5em; font-weight: bold; margin-bottom: 10px; }
-
-    .crypto-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .stat { background: var(--bg-secondary); padding: 10px; border-radius: 10px; text-align: center; }
-    .stat-label { font-size: 0.75em; color: var(--text-secondary); margin-bottom: 5px; }
-    .stat-value { font-weight: bold; font-size: 0.9em; }
-    .stat-value.positive { color: #10b981; }
-    .stat-value.negative { color: #ef4444; }
-
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: var(--bg-card);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid var(--border-color);
-      padding: 15px;
-      display: flex;
-      justify-content: space-around;
-      z-index: 100;
-      box-shadow: 0 -5px 20px var(--shadow);
-    }
-    .nav-btn {
-      background: transparent; border: none;
-      color: var(--text-secondary);
-      font-size: 1.5em;
-      cursor: pointer;
-      transition: all 0.3s;
-      padding: 10px 20px;
-      border-radius: 15px;
-    }
-    .nav-btn.active { color: var(--accent); background: var(--bg-secondary); }
-    .nav-btn:active { transform: scale(0.9); }
-
-    .page { display: none; }
-    .page.active { display: block; animation: fadeIn 0.3s; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-    .settings-section {
-      background: var(--bg-card);
-      backdrop-filter: blur(20px);
-      border-radius: 20px;
-      padding: 25px;
-      margin-bottom: 20px;
-      border: 1px solid var(--border-color);
-    }
-    .settings-title { font-size: 1.3em; font-weight: bold; margin-bottom: 20px; color: var(--text-primary); }
-
-    .setting-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 20px;
-      background: var(--bg-secondary);
-      border-radius: 15px;
-      margin-bottom: 15px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .setting-item:hover { background: var(--bg-hover); }
-    .setting-info { flex: 1; }
-    .setting-label { font-weight: 600; margin-bottom: 5px; }
-    .setting-desc { font-size: 0.85em; color: var(--text-secondary); }
-
-    .theme-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-    .theme-option {
-      background: var(--bg-secondary);
-      border: 2px solid var(--border-color);
-      border-radius: 15px;
-      padding: 25px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .theme-option:active { transform: scale(0.95); }
-    .theme-option.active { border-color: var(--accent); background: var(--accent-glow); }
-    .theme-icon { font-size: 3em; margin-bottom: 10px; }
-    .theme-name { font-weight: 600; }
-
-    .toggle-switch {
-      position: relative; width: 60px; height: 30px;
-      background: var(--bg-secondary);
-      border-radius: 15px;
-      cursor: pointer;
-      transition: all 0.3s;
-      border: 2px solid var(--border-color);
-    }
-    .toggle-switch.active { background: var(--accent); border-color: var(--accent); }
-    .toggle-slider {
-      position: absolute; width: 22px; height: 22px;
-      background: white; border-radius: 50%;
-      top: 2px; left: 2px; transition: all 0.3s;
-      box-shadow: 0 2px 5px var(--shadow);
-    }
-    .toggle-switch.active .toggle-slider { left: 32px; }
-
-    .modal {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.8);
-      display: none; align-items: center; justify-content: center;
-      z-index: 1000;
-      padding: 20px;
-      backdrop-filter: blur(10px);
-    }
-    .modal.active { display: flex; }
-    .modal-content {
-      background: var(--bg-card);
-      backdrop-filter: blur(20px);
-      border-radius: 30px;
-      padding: 30px;
-      max-width: 500px;
-      width: 100%;
-      border: 1px solid var(--border-color);
-      animation: modalSlideIn 0.3s;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    @keyframes modalSlideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .modal-title { font-size: 1.5em; font-weight: bold; }
-
-    .close-btn {
-      background: var(--bg-secondary);
-      border: none;
-      width: 35px; height: 35px;
-      border-radius: 50%;
-      font-size: 1.2em;
-      cursor: pointer;
-      color: var(--text-primary);
-      transition: all 0.3s;
-    }
-    .close-btn:active { transform: scale(0.9); }
-
-    .chart-container {
-      width: 100%;
-      height: 200px;
-      background: var(--bg-secondary);
-      border-radius: 15px;
-      margin: 20px 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-      border: 1px solid var(--border-color);
-    }
-
-    .loading { text-align: center; padding: 40px; color: var(--text-secondary); }
-    .spinner {
-      border: 3px solid var(--bg-secondary);
-      border-top: 3px solid var(--accent);
-      border-radius: 50%;
-      width: 40px; height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 20px auto;
-    }
-
-    .watchlist-empty { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
-    .watchlist-empty-icon { font-size: 5em; margin-bottom: 20px; opacity: 0.5; }
-
-    .btn-row { display:flex; gap:10px; margin-top: 14px; }
-    .action-btn {
-      flex: 1;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 12px 14px;
-      color: var(--text-primary);
-      cursor: pointer;
-      font-weight: 700;
-      transition: all .2s;
-      text-align:center;
+    .tabs::-webkit-scrollbar{ height:0; }
+    .tab{
       user-select:none;
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--stroke);
+      color: var(--muted);
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-weight:800;
+      font-size: 12.5px;
+      cursor:pointer;
+      white-space:nowrap;
+      transition:.2s;
     }
-    .action-btn.primary {
-      background: var(--accent);
-      border-color: var(--accent);
-      box-shadow: 0 5px 20px var(--accent-glow);
+    .tab.active{
+      color:#fff;
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(0,229,255,.60));
+      border-color: transparent;
+      box-shadow: 0 12px 26px var(--glow), 0 12px 26px var(--glow2);
     }
-    .action-btn:active { transform: scale(0.98); }
+    .tab:active{ transform:scale(.97); }
 
-    .mini-note { color: var(--text-secondary); font-size: 0.9em; line-height: 1.35; }
+    .title{
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .title h2{ font-size: 14.5px; font-weight:900; }
+    .chip{
+      font-size:11px; color:var(--muted);
+      border:1px solid var(--stroke);
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.04);
+    }
+
+    .inputs{
+      display:grid; grid-template-columns: 1fr 1fr; gap:10px;
+      margin-top:10px;
+    }
+    .field{
+      background: rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      padding: 12px 12px;
+    }
+    .field label{ display:block; font-size:11px; color:var(--muted2); margin-bottom:6px; }
+    .field input{
+      width:100%;
+      border:none;
+      outline:none;
+      background:transparent;
+      color:#fff;
+      font-size:16px;
+      font-weight:900;
+    }
+    .hint{ font-size:11.5px; color:var(--muted); margin-top:10px; }
+
+    .btnrow{ display:flex; gap:10px; margin-top:12px; }
+    .btn{
+      flex:1;
+      border:none;
+      cursor:pointer;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-weight:950;
+      letter-spacing:.2px;
+      font-size: 14px;
+      transition:.15s;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    .btn:active{ transform: scale(.98); }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(0,229,255,.65));
+      color:#fff;
+      box-shadow: 0 14px 30px var(--glow), 0 14px 30px var(--glow2);
+    }
+    .btn.ghost{
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--stroke);
+      color: var(--text);
+    }
+    .btn.danger{
+      background: linear-gradient(135deg, rgba(255,77,109,.95), rgba(255,209,102,.55));
+      color:#fff;
+      box-shadow: 0 14px 30px rgba(255,77,109,.18);
+    }
+
+    /* Bottom nav */
+    .nav{
+      position:fixed; left:0; right:0; bottom:0;
+      padding: 12px 14px;
+      background: rgba(8,10,18,.75);
+      backdrop-filter: blur(18px);
+      border-top:1px solid rgba(255,255,255,.10);
+      z-index:50;
+    }
+    .nav-inner{
+      max-width:640px; margin:0 auto;
+      display:flex; gap:10px; justify-content:space-between;
+    }
+    .navbtn{
+      flex:1;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      color: var(--muted);
+      border-radius: 16px;
+      padding: 10px 12px;
+      font-weight:900;
+      cursor:pointer;
+      transition:.2s;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      font-size: 12.5px;
+    }
+    .navbtn.active{
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(0,229,255,.60));
+      color:#fff;
+      border-color: transparent;
+      box-shadow: 0 12px 26px var(--glow), 0 12px 26px var(--glow2);
+    }
+    .navbtn:active{ transform:scale(.98); }
+
+    /* Roulette */
+    .roulette-wrap{
+      display:grid; gap:12px;
+    }
+    .wheel-area{
+      position:relative;
+      height: 280px;
+      border-radius: var(--radius2);
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      overflow:hidden;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .wheel{
+      width: 230px; height: 230px;
+      border-radius: 50%;
+      border: 10px solid rgba(255,255,255,.08);
+      box-shadow: inset 0 0 0 8px rgba(0,0,0,.25), 0 20px 60px rgba(0,0,0,.35);
+      position:relative;
+      transform: rotate(0deg);
+      transition: transform 4.2s cubic-bezier(.1,.9,.1,1);
+      background:
+        conic-gradient(
+          #2df7c1 0deg 45deg,
+          #7c5cff 45deg 90deg,
+          #ff4d6d 90deg 135deg,
+          #00e5ff 135deg 180deg,
+          #ffd166 180deg 225deg,
+          #7c5cff 225deg 270deg,
+          #ff4d6d 270deg 315deg,
+          #00e5ff 315deg 360deg
+        );
+    }
+    .wheel:after{
+      content:"";
+      position:absolute; inset: 18px;
+      border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), rgba(0,0,0,.25) 60%, rgba(0,0,0,.35));
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .wheel-center{
+      position:absolute;
+      width: 56px; height: 56px;
+      border-radius:50%;
+      background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow: 0 10px 25px rgba(0,0,0,.35);
+      display:flex; align-items:center; justify-content:center;
+      font-weight:950;
+      z-index:2;
+    }
+    .pointer{
+      position:absolute;
+      top: 18px;
+      width: 0; height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-bottom: 24px solid rgba(255,255,255,.92);
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,.4));
+      z-index:3;
+    }
+    .result-pill{
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      color: var(--muted);
+      font-size: 12.5px;
+      font-weight:900;
+      display:flex; align-items:center; justify-content:center;
+      gap:8px;
+    }
+
+    /* Crash */
+    .crash-area{
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius2);
+      overflow:hidden;
+      height: 280px;
+      position:relative;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .gridline{
+      position:absolute; inset:0;
+      background:
+        linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px) 0 0 / 36px 36px,
+        linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px) 0 0 / 36px 36px;
+      opacity:.6;
+      pointer-events:none;
+    }
+    .crash-hud{
+      position:absolute; top:14px; left:14px; right:14px;
+      display:flex; justify-content:space-between; gap:10px; align-items:center;
+      z-index:3;
+    }
+    .hud-box{
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      padding: 10px 12px;
+      min-width: 120px;
+    }
+    .hud-label{ font-size:11px; color:var(--muted2); }
+    .hud-value{ font-size:18px; font-weight:950; margin-top:2px; }
+    .hud-value.good{ color: var(--good); }
+    .hud-value.bad{ color: var(--bad); }
+
+    .rocket{
+      position:absolute;
+      left: 24px;
+      bottom: 30px;
+      width: 56px; height: 56px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(0,229,255,.70));
+      box-shadow: 0 18px 50px rgba(124,92,255,.22), 0 18px 50px rgba(0,229,255,.18);
+      display:flex; align-items:center; justify-content:center;
+      font-size: 26px;
+      transform: translate(0,0);
+      transition: transform .08s linear;
+      z-index:2;
+    }
+    .trail{
+      position:absolute;
+      left: 24px;
+      bottom: 30px;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle at 20% 80%, rgba(0,229,255,.20), transparent 60%),
+                  radial-gradient(circle at 50% 50%, rgba(124,92,255,.18), transparent 65%);
+      filter: blur(10px);
+      opacity:.8;
+      pointer-events:none;
+    }
+
+    .history{
+      display:grid; gap:10px;
+      max-height: 180px;
+      overflow:auto;
+      padding-right:4px;
+    }
+    .history::-webkit-scrollbar{ width:4px; }
+    .history::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.18); border-radius:4px; }
+
+    .hist-item{
+      display:flex; justify-content:space-between; gap:10px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      font-weight:850;
+      color: var(--text);
+    }
+    .hist-left{ display:flex; gap:10px; align-items:center; }
+    .tag{
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      color: var(--muted);
+      background: rgba(0,0,0,.18);
+    }
+    .val.good{ color: var(--good); }
+    .val.bad{ color: var(--bad); }
+
+    .toast{
+      position:fixed;
+      left:50%; bottom:92px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.72);
+      border:1px solid rgba(255,255,255,.14);
+      color:#fff;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight:800;
+      font-size: 12.5px;
+      opacity:0;
+      pointer-events:none;
+      transition:.25s;
+      z-index:999;
+      max-width: 92vw;
+      text-align:center;
+      backdrop-filter: blur(14px);
+    }
+    .toast.show{ opacity:1; }
+
+    .muted{ color: var(--muted); }
+    .mono{ font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+
+    .page{ display:none; }
+    .page.active{ display:block; animation: fade .18s ease; }
+    @keyframes fade{ from{ opacity:.0; transform: translateY(6px);} to{ opacity:1; transform: translateY(0);} }
+
+    .mini-note{
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height:1.35;
+    }
+    .divider{
+      height:1px;
+      background: rgba(255,255,255,.10);
+      margin: 12px 0;
+    }
   </style>
 </head>
-
 <body>
-  <div class="particles" id="particles"></div>
-
-  <div class="container">
-    <!-- MARKET PAGE -->
-    <div class="page active" id="marketPage">
-      <div class="header">
-        <div class="header-content">
-          <h1>📈 Crypto Tracker</h1>
-          <div class="market-summary">
-            <div class="summary-card">
-              <div class="summary-label">Монет</div>
-              <div class="summary-value" id="coinsCount">—</div>
-            </div>
-            <div class="summary-card">
-              <div class="summary-label">Обновление</div>
-              <div class="summary-value" id="lastUpdate">—</div>
-            </div>
-            <div class="summary-card">
-              <div class="summary-label">Категория</div>
-              <div class="summary-value" id="currentCat">—</div>
-            </div>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="logo">G</div>
+          <div>
+            <h1>Gift Mini <span class="muted">Demo</span></h1>
+            <p>Рулетка + Ракета • Демо-режим</p>
           </div>
         </div>
-      </div>
-
-      <div class="controls">
-        <input type="text" class="search-box" id="searchInput" placeholder="🔍 Поиск...">
-        <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">🔄</button>
-      </div>
-
-      <div class="category-tabs" id="categoryTabs">
-        <div class="category-tab active" data-cat="all">Все</div>
-        <div class="category-tab" data-cat="favorites">⭐ Избранное</div>
-        <div class="category-tab" data-cat="top">🔥 Топ</div>
-        <div class="category-tab" data-cat="telegram">📱 Telegram</div>
-        <div class="category-tab" data-cat="nft">🎨 NFT</div>
-        <div class="category-tab" data-cat="meme">🐸 Memes</div>
-        <div class="category-tab" data-cat="defi">💎 DeFi</div>
-        <div class="category-tab" data-cat="gaming">🎮 Gaming</div>
-      </div>
-
-      <div class="crypto-grid" id="cryptoGrid">
-        <div class="loading">
-          <div class="spinner"></div>
-          <p>Загрузка данных...</p>
+        <div class="balance">
+          <div class="bal-label">Баланс</div>
+          <div class="bal-value mono" id="balance">$ 1,000.00</div>
+          <div class="bal-sub mono" id="uid">ID: —</div>
         </div>
       </div>
     </div>
 
-    <!-- WATCHLIST PAGE -->
-    <div class="page" id="watchlistPage">
-      <div class="header">
-        <div class="header-content">
-          <h1>⭐ Избранное</h1>
+    <div class="row">
+      <div class="tabs card small">
+        <div class="tabs" id="tabs">
+          <div class="tab active" data-page="home">🏠 Главная</div>
+          <div class="tab" data-page="roulette">🎰 Рулетка</div>
+          <div class="tab" data-page="crash">🚀 Ракета</div>
+          <div class="tab" data-page="history">📜 История</div>
+          <div class="tab" data-page="settings">⚙️ Настройки</div>
         </div>
       </div>
 
-      <div class="crypto-grid" id="watchlistGrid">
-        <div class="watchlist-empty">
-          <div class="watchlist-empty-icon">⭐</div>
-          <h2>Избранное пусто</h2>
-          <p>Добавьте криптовалюты в избранное</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- SETTINGS PAGE -->
-    <div class="page" id="settingsPage">
-      <div class="header">
-        <div class="header-content">
-          <h1>⚙️ Настройки</h1>
-        </div>
-      </div>
-
-      <div class="settings-section">
-        <div class="settings-title">🎨 Тема оформления</div>
-        <div class="theme-options">
-          <div class="theme-option" id="darkTheme">
-            <div class="theme-icon">🌙</div>
-            <div class="theme-name">Тёмная</div>
+      <!-- HOME -->
+      <div class="page active" id="page-home">
+        <div class="card">
+          <div class="title">
+            <h2>⚡ Быстрый старт</h2>
+            <div class="chip">min $1 • max $250</div>
           </div>
-          <div class="theme-option" id="lightTheme">
-            <div class="theme-icon">☀️</div>
-            <div class="theme-name">Светлая</div>
+
+          <div class="grid2">
+            <div class="card small">
+              <div class="title"><h2>🎰 Рулетка</h2><div class="chip">x0 / x2 / x5</div></div>
+              <div class="mini-note">Ставка → крутим → результат. Профит зависит от сектора.</div>
+              <div class="btnrow">
+                <button class="btn primary" onclick="go('roulette')">Открыть</button>
+              </div>
+            </div>
+            <div class="card small">
+              <div class="title"><h2>🚀 Ракета</h2><div class="chip">Cashout</div></div>
+              <div class="mini-note">Коэфф растёт → успей забрать до краша.</div>
+              <div class="btnrow">
+                <button class="btn primary" onclick="go('crash')">Открыть</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="title">
+            <h2>🧪 Демо-режим</h2>
+            <div class="chip">без платежей</div>
+          </div>
+          <div class="mini-note">
+            Это тестовая мини-аппка. Баланс и результаты — симуляция.
+            Можно легко подключить реальный бэкенд позже.
           </div>
         </div>
       </div>
 
-      <div class="settings-section">
-        <div class="settings-title">🔔 Уведомления</div>
-        <div class="setting-item" data-setting="priceAlerts">
-          <div class="setting-info">
-            <div class="setting-label">Уведомления о цене</div>
-            <div class="setting-desc">Макет (можно подключить позже)</div>
+      <!-- ROULETTE -->
+      <div class="page" id="page-roulette">
+        <div class="card">
+          <div class="title">
+            <h2>🎰 Рулетка</h2>
+            <div class="chip mono" id="rou-state">готово</div>
           </div>
-          <div class="toggle-switch" id="priceAlertsToggle"><div class="toggle-slider"></div></div>
-        </div>
 
-        <div class="setting-item" data-setting="newsAlerts">
-          <div class="setting-info">
-            <div class="setting-label">Новости</div>
-            <div class="setting-desc">Макет (можно подключить позже)</div>
+          <div class="roulette-wrap">
+            <div class="wheel-area">
+              <div class="pointer"></div>
+              <div class="wheel" id="wheel"></div>
+              <div class="wheel-center">🎁</div>
+            </div>
+
+            <div class="grid2">
+              <div class="field">
+                <label>Ставка (min $1, max $250)</label>
+                <input id="rou-bet" type="number" min="1" max="250" step="1" value="10">
+              </div>
+              <div class="field">
+                <label>Результат</label>
+                <div class="result-pill mono" id="rou-result">—</div>
+              </div>
+            </div>
+
+            <div class="btnrow">
+              <button class="btn primary" id="rou-spin" onclick="spinRoulette()">Крутить 🎯</button>
+              <button class="btn ghost" onclick="setBetQuick('rou-bet', 10)">x10</button>
+              <button class="btn ghost" onclick="setBetQuick('rou-bet', 50)">x50</button>
+            </div>
+
+            <div class="hint">
+              Сектора: <b>x0</b> (проигрыш), <b>x2</b>, <b>x5</b>. Шансы разные — это демо, но выглядит “как надо”.
+            </div>
           </div>
-          <div class="toggle-switch" id="newsAlertsToggle"><div class="toggle-slider"></div></div>
         </div>
       </div>
 
-      <div class="settings-section">
-        <div class="settings-title">💰 Валюта</div>
-        <div class="setting-item" style="cursor:default">
-          <div class="setting-info">
-            <div class="setting-label">Отображение в USD</div>
-            <div class="setting-desc">Сейчас только USD</div>
+      <!-- CRASH -->
+      <div class="page" id="page-crash">
+        <div class="card">
+          <div class="title">
+            <h2>🚀 Ракета</h2>
+            <div class="chip mono" id="crash-state">ожидание</div>
           </div>
-          <div class="toggle-switch active" id="currencyToggle"><div class="toggle-slider"></div></div>
+
+          <div class="crash-area" id="crash-area">
+            <div class="gridline"></div>
+            <div class="trail" id="trail"></div>
+
+            <div class="crash-hud">
+              <div class="hud-box">
+                <div class="hud-label">Коэфф</div>
+                <div class="hud-value mono" id="crash-mult">1.00x</div>
+              </div>
+              <div class="hud-box" style="text-align:right;">
+                <div class="hud-label">Статус</div>
+                <div class="hud-value mono" id="crash-status">READY</div>
+              </div>
+            </div>
+
+            <div class="rocket" id="rocket">🚀</div>
+          </div>
+
+          <div class="inputs">
+            <div class="field">
+              <label>Ставка (min $1, max $250)</label>
+              <input id="crash-bet" type="number" min="1" max="250" step="1" value="10">
+            </div>
+            <div class="field">
+              <label>Авто-кэшаут (0 = ручной)</label>
+              <input id="crash-auto" type="number" min="0" max="100" step="0.1" value="0">
+            </div>
+          </div>
+
+          <div class="btnrow">
+            <button class="btn primary" id="crash-start" onclick="startCrash()">Старт</button>
+            <button class="btn danger" id="crash-cashout" onclick="cashoutCrash()" disabled>Забрать 💰</button>
+            <button class="btn ghost" onclick="setBetQuick('crash-bet', 25)">x25</button>
+          </div>
+
+          <div class="hint">
+            Жми <b>Старт</b>, потом успей <b>Забрать</b> до краша. Если включишь авто-кэшаут — снимет сам.
+          </div>
         </div>
       </div>
 
-      <div class="settings-section">
-        <div class="settings-title">🛒 Fragment (пункт 5)</div>
-        <div class="mini-note">
-          Кнопка «Купить» в карточке монеты открывает Fragment (если это Telegram NFT-токен/username/number) или CoinGecko страницу монеты.
+      <!-- HISTORY -->
+      <div class="page" id="page-history">
+        <div class="card">
+          <div class="title">
+            <h2>📜 История</h2>
+            <div class="chip" onclick="resetDemo()" style="cursor:pointer;">Сброс</div>
+          </div>
+          <div class="history" id="history"></div>
+          <div class="mini-note">Хранится локально (localStorage). В Telegram тоже работает.</div>
         </div>
       </div>
 
-      <div class="settings-section">
-        <div class="settings-title">ℹ️ О приложении</div>
-        <div class="setting-item" style="cursor:default">
-          <div class="setting-info">
-            <div class="setting-label">Версия</div>
-            <div class="setting-desc">1.2.0 (рынок + график 24ч + buy)</div>
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
+        <div class="card">
+          <div class="title">
+            <h2>⚙️ Настройки</h2>
+            <div class="chip">demo</div>
+          </div>
+
+          <div class="grid2">
+            <div class="card small">
+              <div class="title"><h2>💵 Баланс</h2><div class="chip">локально</div></div>
+              <div class="mini-note">Можно “пополнить” демо-баланс, чтобы тестить механику.</div>
+              <div class="btnrow">
+                <button class="btn ghost" onclick="addBalance(100)">+100</button>
+                <button class="btn ghost" onclick="addBalance(500)">+500</button>
+                <button class="btn ghost" onclick="addBalance(1000)">+1000</button>
+              </div>
+            </div>
+
+            <div class="card small">
+              <div class="title"><h2>🧩 Интерфейс</h2><div class="chip">tg</div></div>
+              <div class="mini-note">Подхватываем тему Telegram (если доступно) и делаем expand.</div>
+              <div class="btnrow">
+                <button class="btn primary" onclick="applyTelegram()">Применить</button>
+                <button class="btn ghost" onclick="toast('Ок 👍')">Тест</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="mini-note">
+            Хочешь потом “как в настоящем” — подключим бэкенд: история раундов, ставки, честная рулетка, анти-чит.
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- NAV -->
-  <div class="bottom-nav">
-    <button class="nav-btn active" data-page="marketPage">📊</button>
-    <button class="nav-btn" data-page="watchlistPage">⭐</button>
-    <button class="nav-btn" data-page="settingsPage">⚙️</button>
-  </div>
-
-  <!-- MODAL -->
-  <div class="modal" id="detailModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="modal-title" id="modalTitle">—</div>
-        <button class="close-btn" id="closeModalBtn">×</button>
-      </div>
-      <div id="modalBody"></div>
+  <div class="nav">
+    <div class="nav-inner">
+      <button class="navbtn active" data-page="home" onclick="go('home')">🏠</button>
+      <button class="navbtn" data-page="roulette" onclick="go('roulette')">🎰</button>
+      <button class="navbtn" data-page="crash" onclick="go('crash')">🚀</button>
+      <button class="navbtn" data-page="history" onclick="go('history')">📜</button>
+      <button class="navbtn" data-page="settings" onclick="go('settings')">⚙️</button>
     </div>
   </div>
+
+  <div class="toast" id="toast"></div>
 
 <script>
-  // Telegram safe init (работает и без Telegram)
-  const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
-  try { tg && tg.expand && tg.expand(); } catch {}
+/* -----------------------------
+   Telegram mini app init
+------------------------------*/
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.expand();
+  tg.ready();
+}
 
-  // App data
-  let appData = {
-    theme: 'dark',
-    watchlist: [], // coin ids (coingecko id)
-    settings: { priceAlerts: false, newsAlerts: false, currency: true },
-    currentCategory: 'all',
-    cryptoData: [],
-    lastUpdatedAt: 0
-  };
+/* -----------------------------
+   State
+------------------------------*/
+const S = {
+  balance: 1000,
+  history: [],
+  rouletteSpinning: false,
+  wheelTurns: 0,
 
-  // Category maps (CoinGecko IDs)
-  const CAT = {
-    telegram: ['toncoin', 'notcoin', 'gram', 'hamster-kombat'],
-    nft: ['apecoin','decentraland','the-sandbox','blur','looksrare'],
-    meme: ['pepe','dogecoin','shiba-inu','floki','bonk'],
-    defi: ['uniswap','aave','curve-dao-token','chainlink','maker','lido-dao'],
-    gaming: ['axie-infinity','gala','the-sandbox','immutable-x']
-  };
-
-  const REQUIRED_IDS = [
-    'bitcoin','ethereum','toncoin','pepe','notcoin','dogecoin','shiba-inu',
-    'apecoin','decentraland','the-sandbox','blur','looksrare','uniswap','aave','chainlink'
-  ];
-
-  function nowTime() {
-    const d = new Date();
-    return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  crash: {
+    running: false,
+    startedAt: 0,
+    mult: 1.00,
+    crashAt: 2.00,
+    bet: 10,
+    auto: 0,
+    cashed: false
   }
-  function formatNumber(num) {
-    if (typeof num !== 'number' || Number.isNaN(num)) return '0.00';
-    if (num >= 1000) return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    return num.toFixed(2);
-  }
-  function formatBig(n) {
-    if (typeof n !== 'number' || Number.isNaN(n)) return '0';
-    if (n >= 1e12) return (n / 1e12).toFixed(2) + 'T';
-    if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
-    if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
-    if (n >= 1e3) return (n / 1e3).toFixed(2) + 'K';
-    return String(Math.round(n));
-  }
+};
 
-  function detectCategory(coinId, marketCapRank) {
-    if (CAT.telegram.includes(coinId)) return 'telegram';
-    if (CAT.nft.includes(coinId)) return 'nft';
-    if (CAT.meme.includes(coinId)) return 'meme';
-    if (CAT.defi.includes(coinId)) return 'defi';
-    if (CAT.gaming.includes(coinId)) return 'gaming';
-    if (marketCapRank && marketCapRank <= 15) return 'top';
-    return 'all';
-  }
+const $ = (id)=>document.getElementById(id);
 
-  // --- API ---
-  async function fetchCryptoData() {
-    const topUrl =
-      'https://api.coingecko.com/api/v3/coins/markets' +
-      '?vs_currency=usd&order=market_cap_desc&per_page=80&page=1&sparkline=false&price_change_percentage=24h';
-
-    const idsUrl =
-      'https://api.coingecko.com/api/v3/coins/markets' +
-      `?vs_currency=usd&ids=${encodeURIComponent(REQUIRED_IDS.join(','))}` +
-      '&order=market_cap_desc&per_page=250&page=1&sparkline=false&price_change_percentage=24h';
-
-    const [topRes, idsRes] = await Promise.all([fetch(topUrl), fetch(idsUrl)]);
-    if (!topRes.ok) throw new Error('CoinGecko top error');
-    if (!idsRes.ok) throw new Error('CoinGecko ids error');
-
-    const [top, extra] = await Promise.all([topRes.json(), idsRes.json()]);
-    const map = new Map();
-
-    [...top, ...extra].forEach(c => {
-      if (!c || !c.id) return;
-      map.set(c.id, c);
-    });
-
-    // normalize
-    return Array.from(map.values()).map(c => ({
-      id: c.id,
-      name: c.name,
-      symbol: String(c.symbol || '').toUpperCase(),
-      iconUrl: c.image,
-      price: c.current_price,
-      change24h: c.price_change_percentage_24h ?? 0,
-      volumeNum: c.total_volume ?? 0,
-      marketCapNum: c.market_cap ?? 0,
-      marketCapRank: c.market_cap_rank ?? null,
-      category: detectCategory(c.id, c.market_cap_rank)
-    }));
-  }
-
-  async function fetchChart24h(coinId) {
-    const url = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=1`;
-    const r = await fetch(url);
-    if (!r.ok) throw new Error('chart error');
-    const d = await r.json();
-    return Array.isArray(d.prices) ? d.prices : [];
-  }
-
-  // --- UI particles ---
-  function createParticles() {
-    const container = document.getElementById('particles');
-    if (!container || container.childNodes.length) return;
-    for (let i = 0; i < 20; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'particle';
-      particle.style.left = Math.random() * 100 + '%';
-      particle.style.top = Math.random() * 100 + '%';
-      particle.style.width = Math.random() * 4 + 2 + 'px';
-      particle.style.height = particle.style.width;
-      particle.style.animationDelay = Math.random() * 20 + 's';
-      particle.style.animationDuration = (15 + Math.random() * 10) + 's';
-      container.appendChild(particle);
+function money(n){
+  return n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function load(){
+  try{
+    const raw = localStorage.getItem("giftmini_demo");
+    if(raw){
+      const data = JSON.parse(raw);
+      if(typeof data.balance === "number") S.balance = data.balance;
+      if(Array.isArray(data.history)) S.history = data.history.slice(0, 60);
     }
+  }catch(e){}
+}
+function save(){
+  localStorage.setItem("giftmini_demo", JSON.stringify({
+    balance: S.balance,
+    history: S.history
+  }));
+}
+function setBalance(v){
+  S.balance = Math.max(0, v);
+  $("balance").textContent = `$ ${money(S.balance)}`;
+  save();
+}
+function addBalance(v){
+  setBalance(S.balance + v);
+  addHist("system", `+ $${money(v)}`, "+", v);
+  toast(`Баланс +$${money(v)}`);
+}
+function addHist(type, label, sign, delta, extra={}){
+  S.history.unshift({
+    ts: Date.now(),
+    type,
+    label,
+    sign,
+    delta,
+    ...extra
+  });
+  S.history = S.history.slice(0, 60);
+  save();
+  renderHistory();
+}
+function renderHistory(){
+  const box = $("history");
+  if(!S.history.length){
+    box.innerHTML = `<div class="hist-item"><div class="hist-left"><span class="tag">пусто</span>История пуста</div><div class="val mono">—</div></div>`;
+    return;
   }
-
-  // --- Render ---
-  function createCryptoCard(crypto) {
-    const card = document.createElement('div');
-    card.className = 'crypto-card';
-
-    const isInWatchlist = appData.watchlist.includes(crypto.id);
-    const changeClass = crypto.change24h >= 0 ? 'positive' : 'negative';
-    const changeSign = crypto.change24h >= 0 ? '+' : '';
-
-    card.innerHTML = `
-      <div class="crypto-header">
-        <div class="crypto-icon">
-          ${crypto.iconUrl ? `<img src="${crypto.iconUrl}" alt="${crypto.symbol}">` : '💠'}
+  box.innerHTML = "";
+  for(const it of S.history){
+    const d = new Date(it.ts);
+    const tm = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    const good = it.delta >= 0;
+    box.innerHTML += `
+      <div class="hist-item">
+        <div class="hist-left">
+          <span class="tag">${it.type}</span>
+          <div>
+            <div>${it.label}</div>
+            <div class="muted mono" style="font-size:11px;margin-top:2px;">${tm}</div>
+          </div>
         </div>
-        <div class="crypto-info">
-          <div class="crypto-name">${crypto.name}</div>
-          <div class="crypto-symbol">${crypto.symbol} • ${crypto.category}</div>
-        </div>
-        <button data-fav="${crypto.id}" style="background: transparent; border: none; font-size: 1.5em; cursor: pointer;">
-          ${isInWatchlist ? '⭐' : '☆'}
-        </button>
-      </div>
-      <div class="crypto-price">$${formatNumber(crypto.price)}</div>
-      <div class="crypto-stats">
-        <div class="stat">
-          <div class="stat-label">24ч</div>
-          <div class="stat-value ${changeClass}">${changeSign}${Number(crypto.change24h).toFixed(2)}%</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Объём</div>
-          <div class="stat-value">$${formatBig(crypto.volumeNum)}</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Кап.</div>
-          <div class="stat-value">$${formatBig(crypto.marketCapNum)}</div>
-        </div>
+        <div class="val mono ${good?'good':'bad'}">${good?'+':'-'}$${money(Math.abs(it.delta))}</div>
       </div>
     `;
+  }
+}
 
-    // fav
-    card.querySelector('button[data-fav]').addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleWatchlist(crypto.id);
-    });
+function toast(text){
+  const t = $("toast");
+  t.textContent = text;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 1400);
+}
 
-    // open detail
-    card.addEventListener('click', () => showDetail(crypto));
+/* -----------------------------
+   Navigation
+------------------------------*/
+function go(page){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelector(`#page-${page}`).classList.add("active");
 
-    return card;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.page===page));
+  document.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("active", b.dataset.page===page));
+
+  if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+}
+
+/* -----------------------------
+   Roulette logic (demo)
+   sectors: x0(40%), x2(45%), x5(15%)
+------------------------------*/
+function setBetQuick(id, val){
+  $(id).value = val;
+  if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+}
+
+function clampBet(v){
+  v = Number(v || 0);
+  if(!Number.isFinite(v)) v = 0;
+  v = Math.floor(v);
+  return Math.max(1, Math.min(250, v));
+}
+
+function pickRouletteOutcome(){
+  const r = Math.random();
+  if (r < 0.40) return {mult:0, label:"x0", color:"lose"};
+  if (r < 0.85) return {mult:2, label:"x2", color:"win"};
+  return {mult:5, label:"x5", color:"win"};
+}
+
+function spinRoulette(){
+  if(S.rouletteSpinning) return;
+  const bet = clampBet($("rou-bet").value);
+
+  if (bet > S.balance){
+    toast("Не хватает баланса");
+    return;
   }
 
-  function filterCryptoData() {
-    let data = [...appData.cryptoData];
+  S.rouletteSpinning = true;
+  $("rou-state").textContent = "крутим...";
+  $("rou-spin").disabled = true;
+  $("rou-result").textContent = "—";
 
-    // category
-    if (appData.currentCategory === 'favorites') {
-      data = data.filter(c => appData.watchlist.includes(c.id));
-    } else if (appData.currentCategory !== 'all') {
-      data = data.filter(c => c.category === appData.currentCategory);
+  setBalance(S.balance - bet);
+  addHist("roulette", `Ставка $${money(bet)}`, "-", -bet);
+
+  const out = pickRouletteOutcome();
+
+  // We rotate to a pseudo sector depending on outcome
+  // 8 sectors: [x2,x2,x0,x2,x5,x2,x0,x2] style mapping
+  const sectorMap = out.mult === 0 ? [2,6] : out.mult === 5 ? [4] : [0,1,3,5,7];
+  const sector = sectorMap[Math.floor(Math.random()*sectorMap.length)];
+  const baseDeg = sector * 45 + 22.5; // center of sector
+  S.wheelTurns += 1;
+  const spins = 6 + Math.floor(Math.random()*3); // 6..8 turns
+  const deg = spins*360 + baseDeg;
+
+  const wheel = $("wheel");
+  wheel.style.transform = `rotate(${deg}deg)`;
+
+  setTimeout(()=>{
+    const win = bet * out.mult;
+    if (win > 0){
+      setBalance(S.balance + win);
+      addHist("roulette", `Выигрыш ${out.label}`, "+", win);
+      $("rou-result").textContent = `${out.label} • +$${money(win)}`;
+      toast(`Профит +$${money(win)}`);
+      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    } else {
+      $("rou-result").textContent = `${out.label} • -$${money(bet)}`;
+      toast("Не повезло 😅");
+      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+    }
+    $("rou-state").textContent = "готово";
+    S.rouletteSpinning = false;
+    $("rou-spin").disabled = false;
+  }, 4300);
+}
+
+/* -----------------------------
+   Crash logic (demo)
+   crashAt is random ~ 1.2..8.0 with skew
+------------------------------*/
+let crashTimer = null;
+
+function pickCrashAt(){
+  // skewed distribution: most often 1.2..3.0, sometimes higher
+  const r = Math.random();
+  const base = 1.15 + Math.pow(r, 2.2) * 7.0; // 1.15..8.15
+  return Math.max(1.15, Math.min(12, base));
+}
+
+function startCrash(){
+  if (S.crash.running) return;
+
+  const bet = clampBet($("crash-bet").value);
+  if (bet > S.balance){
+    toast("Не хватает баланса");
+    return;
+  }
+
+  const auto = Number($("crash-auto").value || 0);
+  S.crash.bet = bet;
+  S.crash.auto = (Number.isFinite(auto) && auto > 1.01) ? auto : 0;
+  S.crash.mult = 1.00;
+  S.crash.crashAt = pickCrashAt();
+  S.crash.running = true;
+  S.crash.cashed = false;
+
+  setBalance(S.balance - bet);
+  addHist("crash", `Ставка $${money(bet)}`, "-", -bet);
+
+  $("crash-state").textContent = "в игре";
+  $("crash-status").textContent = "FLYING";
+  $("crash-mult").textContent = "1.00x";
+  $("crash-cashout").disabled = false;
+  $("crash-start").disabled = true;
+
+  if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+  // animate
+  const rocket = $("rocket");
+  rocket.style.transform = `translate(0px, 0px)`;
+
+  const started = performance.now();
+  crashTimer = setInterval(()=>{
+    const t = (performance.now() - started) / 1000; // seconds
+    // multiplier growth curve
+    const m = 1 + (t * 0.85) + (t*t * 0.12);
+    S.crash.mult = Number(m.toFixed(2));
+    $("crash-mult").textContent = `${S.crash.mult.toFixed(2)}x`;
+
+    // rocket movement (x right, y up)
+    const x = Math.min(520, 20 + t*120);
+    const y = Math.min(200, 10 + t*70);
+    rocket.style.transform = `translate(${x}px, -${y}px)`;
+
+    // auto cashout
+    if (S.crash.auto && !S.crash.cashed && S.crash.mult >= S.crash.auto){
+      cashoutCrash(true);
     }
 
-    // search
-    const q = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
-    if (q) {
-      data = data.filter(c =>
-        c.name.toLowerCase().includes(q) ||
-        c.symbol.toLowerCase().includes(q)
-      );
+    // crash check
+    if (S.crash.mult >= S.crash.crashAt){
+      endCrash(false);
     }
+  }, 80);
+}
 
-    // stable sort: top rank first
-    data.sort((a,b) => (a.marketCapRank ?? 999999) - (b.marketCapRank ?? 999999));
-    return data;
+function cashoutCrash(auto=false){
+  if (!S.crash.running) return;
+  if (S.crash.cashed) return;
+
+  S.crash.cashed = true;
+  const win = S.crash.bet * S.crash.mult;
+  setBalance(S.balance + win);
+  addHist("crash", `Кэшаут ${S.crash.mult.toFixed(2)}x`, "+", win);
+
+  $("crash-status").textContent = auto ? "AUTO CASH" : "CASHED";
+  $("crash-cashout").disabled = true;
+
+  toast(`Забрал +$${money(win)}`);
+  if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+  // keep running until crash, but no more cashouts
+}
+
+function endCrash(winAlready){
+  clearInterval(crashTimer);
+  crashTimer = null;
+
+  $("crash-state").textContent = "конец";
+  $("crash-status").textContent = "CRASH";
+  $("crash-cashout").disabled = true;
+  $("crash-start").disabled = false;
+
+  const rocket = $("rocket");
+  rocket.style.transform += " rotate(12deg)";
+  if (!S.crash.cashed){
+    addHist("crash", `Краш на ${S.crash.crashAt.toFixed(2)}x`, "-", 0);
+    toast("Краш! Не успел 😅");
+    if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+  } else {
+    addHist("crash", `Краш на ${S.crash.crashAt.toFixed(2)}x`, "+", 0);
   }
 
-  function renderCryptoGrid() {
-    const grid = document.getElementById('cryptoGrid');
-    const filtered = filterCryptoData();
+  S.crash.running = false;
+}
 
-    document.getElementById('coinsCount').textContent = String(filtered.length);
-    document.getElementById('lastUpdate').textContent = appData.lastUpdatedAt ? nowTime() : '—';
-    document.getElementById('currentCat').textContent = appData.currentCategory;
+function resetDemo(){
+  if (crashTimer) clearInterval(crashTimer);
+  crashTimer = null;
+  S.history = [];
+  S.balance = 1000;
+  save();
+  setBalance(S.balance);
+  renderHistory();
+  toast("Сброшено");
+}
 
-    if (!filtered.length) {
-      grid.innerHTML = '<div class="loading"><p>Нет результатов</p></div>';
-      return;
-    }
+/* -----------------------------
+   Telegram apply
+------------------------------*/
+function applyTelegram(){
+  if (!tg){ toast("Открывай в Telegram"); return; }
+  tg.expand();
+  tg.ready();
+  toast("Применено ✅");
+}
 
-    grid.innerHTML = '';
-    filtered.forEach(crypto => grid.appendChild(createCryptoCard(crypto)));
+/* -----------------------------
+   Init
+------------------------------*/
+function init(){
+  load();
+  setBalance(S.balance);
+  renderHistory();
+
+  // uid display
+  if (tg?.initDataUnsafe?.user?.id){
+    $("uid").textContent = "ID: " + tg.initDataUnsafe.user.id;
+  } else {
+    $("uid").textContent = "ID: demo";
   }
 
-  // --- Watchlist ---
-  function toggleWatchlist(id) {
-    const idx = appData.watchlist.indexOf(id);
-    if (idx > -1) appData.watchlist.splice(idx, 1);
-    else appData.watchlist.push(id);
+  // tab click
+  document.querySelectorAll(".tab").forEach(t=>{
+    t.addEventListener("click", ()=>go(t.dataset.page));
+  });
 
-    saveData();
-    renderCryptoGrid();
-    updateWatchlist();
-    vibrate('light');
-  }
-
-  function updateWatchlist() {
-    const grid = document.getElementById('watchlistGrid');
-    const watchlistCryptos = appData.cryptoData.filter(c => appData.watchlist.includes(c.id));
-
-    if (watchlistCryptos.length === 0) {
-      grid.innerHTML = `
-        <div class="watchlist-empty">
-          <div class="watchlist-empty-icon">⭐</div>
-          <h2>Избранное пусто</h2>
-          <p>Добавьте криптовалюты в избранное</p>
-        </div>
-      `;
-      return;
-    }
-
-    grid.innerHTML = '';
-    watchlistCryptos.forEach(crypto => grid.appendChild(createCryptoCard(crypto)));
-  }
-
-  // --- Modal + chart ---
-  function drawSparkline(canvas, points) {
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width, h = canvas.height;
-    ctx.clearRect(0,0,w,h);
-
-    if (!points.length) {
-      ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      ctx.font = '14px system-ui';
-      ctx.fillText('Нет данных графика', 10, 24);
-      return;
-    }
-
-    const prices = points.map(p => p[1]);
-    const minP = Math.min(...prices);
-    const maxP = Math.max(...prices);
-    const range = Math.max(1e-9, maxP - minP);
-
-    // grid
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-    for (let i=1;i<=4;i++){
-      const y = (h/5)*i;
-      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
-    }
-
-    // line
-    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#667eea';
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = accent;
-
-    ctx.beginPath();
-    points.forEach((p,i)=>{
-      const x = (i/(points.length-1))*(w-20)+10;
-      const y = (h-10) - ((p[1]-minP)/range)*(h-20);
-      if (i===0) ctx.moveTo(x,y);
-      else ctx.lineTo(x,y);
-    });
-    ctx.stroke();
-
-    // label
-    ctx.fillStyle = 'rgba(255,255,255,0.7)';
-    ctx.font = '12px system-ui';
-    ctx.fillText(`min $${formatNumber(minP)}`, 10, h-10);
-    ctx.fillText(`max $${formatNumber(maxP)}`, 10, 16);
-  }
-
-  function openLink(url){
-    try {
-      if (tg && tg.openLink) tg.openLink(url);
-      else window.open(url, '_blank');
-    } catch {
-      window.open(url, '_blank');
-    }
-  }
-
-  function getBuyLink(crypto){
-    // Пункт 5: “Купить” — для Telegram-ish открываем Fragment, иначе CoinGecko.
-    // (Это честно: Fragment торгует usernames/numbers, не токенами. Но ты просил кнопку — она есть.)
-    if (crypto.category === 'telegram') {
-      // универсально на Fragment: пользователь сам найдёт username/number
-      return 'https://fragment.com/';
-    }
-    return `https://www.coingecko.com/en/coins/${encodeURIComponent(crypto.id)}`;
-  }
-
-  async function showDetail(crypto) {
-    document.getElementById('modalTitle').textContent = `${crypto.name} (${crypto.symbol})`;
-
-    const changeClass = crypto.change24h >= 0 ? 'positive' : 'negative';
-    const changeSign = crypto.change24h >= 0 ? '+' : '';
-    const isNFT = crypto.category === 'nft';
-
-    document.getElementById('modalBody').innerHTML = `
-      <div style="text-align:center; margin-bottom: 10px;">
-        <div style="font-size: 2.2em; font-weight: bold; margin-bottom: 6px;">
-          $${formatNumber(crypto.price)}
-        </div>
-        <div style="font-size: 1.1em;" class="${changeClass}">
-          ${changeSign}${Number(crypto.change24h).toFixed(2)}% (24ч)
-        </div>
-        <div class="mini-note" style="margin-top:10px">
-          ${isNFT ? '🎨 NFT: график 24ч (подъёмы/падения) ниже' : '📊 График 24ч тоже показываем (реальные данные)'}
-        </div>
-      </div>
-
-      <div class="chart-container">
-        <canvas id="spark" width="440" height="200" style="width:100%; height:100%;"></canvas>
-      </div>
-
-      <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px;">
-        <div class="stat">
-          <div class="stat-label">Объём (24ч)</div>
-          <div class="stat-value">$${formatBig(crypto.volumeNum)}</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Рын. кап.</div>
-          <div class="stat-value">$${formatBig(crypto.marketCapNum)}</div>
-        </div>
-      </div>
-
-      <div class="btn-row">
-        <div class="action-btn" id="btnOpenCoin">Открыть</div>
-        <div class="action-btn primary" id="btnBuy">🛒 Купить</div>
-      </div>
-    `;
-
-    document.getElementById('detailModal').classList.add('active');
-    vibrate('light');
-
-    // buttons
-    document.getElementById('btnOpenCoin').onclick = () => openLink(`https://www.coingecko.com/en/coins/${encodeURIComponent(crypto.id)}`);
-    document.getElementById('btnBuy').onclick = () => openLink(getBuyLink(crypto));
-
-    // draw chart
-    try {
-      const points = await fetchChart24h(crypto.id);
-      const canvas = document.getElementById('spark');
-      // adapt to actual width
-      const rect = canvas.getBoundingClientRect();
-      const cssW = Math.max(320, Math.floor(rect.width));
-      const cssH = Math.max(180, Math.floor(rect.height));
-      canvas.width = cssW;
-      canvas.height = cssH;
-      drawSparkline(canvas, points);
-    } catch {
-      const canvas = document.getElementById('spark');
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      ctx.font = '14px system-ui';
-      ctx.fillText('Ошибка загрузки графика', 10, 24);
-    }
-  }
-
-  function closeModal() { document.getElementById('detailModal').classList.remove('active'); }
-
-  // --- Market load + realtime polling ---
-  async function loadMarket() {
-    const grid = document.getElementById('cryptoGrid');
-    grid.innerHTML = '<div class="loading"><div class="spinner"></div><p>Загрузка данных...</p></div>';
-
-    try {
-      appData.cryptoData = await fetchCryptoData();
-      appData.lastUpdatedAt = Date.now();
-      renderCryptoGrid();
-      updateWatchlist();
-    } catch (e) {
-      grid.innerHTML = '<div class="loading"><p>Ошибка загрузки данных (CoinGecko)</p></div>';
-    }
-  }
-
-  function refreshData() {
-    const btn = document.getElementById('refreshBtn');
-    btn.classList.add('spinning');
-    loadMarket().finally(() => btn.classList.remove('spinning'));
-  }
-
-  // --- Navigation ---
-  function switchPage(pageId, btn) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(pageId).classList.add('active');
-
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    if (pageId === 'watchlistPage') updateWatchlist();
-    vibrate('light');
-  }
-
-  // --- Theme ---
-  function setTheme(theme) {
-    appData.theme = theme;
-    applyTheme();
-    saveData();
-    vibrate('light');
-  }
-  function applyTheme() {
-    document.documentElement.setAttribute('data-theme', appData.theme);
-
-    const dark = document.getElementById('darkTheme');
-    const light = document.getElementById('lightTheme');
-    dark.classList.toggle('active', appData.theme === 'dark');
-    light.classList.toggle('active', appData.theme === 'light');
-  }
-
-  // --- Settings ---
-  function toggleSetting(setting) {
-    if (!appData.settings.hasOwnProperty(setting)) return;
-    appData.settings[setting] = !appData.settings[setting];
-
-    const toggle = document.getElementById(setting + 'Toggle');
-    if (toggle) toggle.classList.toggle('active', !!appData.settings[setting]);
-
-    saveData();
-    vibrate('light');
-  }
-
-  // --- Storage ---
-  function saveData() { localStorage.setItem('cryptoTrackerData', JSON.stringify(appData)); }
-  function loadData() {
-    const saved = localStorage.getItem('cryptoTrackerData');
-    if (!saved) return;
-    try {
-      const data = JSON.parse(saved);
-      appData.theme = data.theme || 'dark';
-      appData.watchlist = Array.isArray(data.watchlist) ? data.watchlist : [];
-      appData.settings = data.settings || appData.settings;
-      appData.currentCategory = data.currentCategory || 'all';
-    } catch {}
-  }
-
-  // --- Haptics ---
-  function vibrate(type) {
-    if (!tg || !tg.HapticFeedback) return;
-    try {
-      if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
-      else if (type === 'error') tg.HapticFeedback.notificationOccurred('error');
-      else tg.HapticFeedback.impactOccurred('light');
-    } catch {}
-  }
-
-  // --- Events binding (фикс “поиск/категории/тема” чтобы не ломалось) ---
-  function bindEvents() {
-    // category tabs (без event.target бага)
-    document.getElementById('categoryTabs').addEventListener('click', (e) => {
-      const tab = e.target.closest('.category-tab');
-      if (!tab) return;
-      const cat = tab.getAttribute('data-cat');
-      appData.currentCategory = cat;
-
-      document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-
-      saveData();
-      renderCryptoGrid();
-      vibrate('light');
-    });
-
-    // search
-    document.getElementById('searchInput').addEventListener('input', () => renderCryptoGrid());
-
-    // nav
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-      btn.addEventListener('click', () => switchPage(btn.getAttribute('data-page'), btn));
-    });
-
-    // modal close
-    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
-    document.getElementById('detailModal').addEventListener('click', (e) => {
-      if (e.target.id === 'detailModal') closeModal();
-    });
-
-    // theme
-    document.getElementById('darkTheme').addEventListener('click', () => setTheme('dark'));
-    document.getElementById('lightTheme').addEventListener('click', () => setTheme('light'));
-
-    // settings toggles
-    document.querySelectorAll('.setting-item[data-setting]').forEach(item => {
-      item.addEventListener('click', () => toggleSetting(item.getAttribute('data-setting')));
-    });
-  }
-
-  // --- Init ---
-  function init() {
-    loadData();
-    applyTheme();
-    createParticles();
-    bindEvents();
-
-    // restore active category tab UI
-    document.querySelectorAll('.category-tab').forEach(t => {
-      t.classList.toggle('active', t.getAttribute('data-cat') === appData.currentCategory);
-    });
-
-    loadMarket();
-
-    // real-time monitoring (polling)
-    setInterval(loadMarket, 15000);
-  }
-
-  init();
+  // stop crash if you leave crash page? (keep running)
+}
+init();
 </script>
 </body>
 </html>
