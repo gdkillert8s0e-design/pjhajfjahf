@@ -23,7 +23,7 @@ from aiogram.filters import CommandStart
 # CONFIG
 # =========================
 BOT_TOKEN = os.getenv("8120789440:AAG6OC71xLVURNAxjYXdgZrfNeTtUuc9IHU", "").strip()
-WEBAPP_URL = os.getenv("t.me/hafgahgfahjfghabot/Hdjdvsbs", "").strip()  # публичный URL на /
+WEBAPP_URL = os.getenv("https://pjhajfjahf.vercel.app/", "").strip()  # публичный URL на /
 ADMIN_ID = int(os.getenv("ADMIN_ID", "5883796026"))
 DB_PATH = os.getenv("DB_PATH", "app.db")
 
