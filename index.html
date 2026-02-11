@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Gift Mini (Server)</title>
+  <title>Gift Mini (Stars)</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root{
-      --bg:#06070c;
+      --bg:#05060b;
       --card: rgba(255,255,255,.06);
       --stroke: rgba(255,255,255,.10);
       --text: rgba(255,255,255,.92);
@@ -16,6 +16,7 @@
       --accent2:#3aa7ff;
       --good:#1fe2a0;
       --bad:#ff4d6d;
+      --gold:#ffd166;
       --radius:18px;
       --radius2:26px;
       --shadow: rgba(0,0,0,.45);
@@ -25,25 +26,26 @@
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
       color:var(--text);
       background:
-        radial-gradient(900px 600px at 30% 10%, rgba(123,77,255,.22), transparent 55%),
-        radial-gradient(900px 700px at 85% 15%, rgba(58,167,255,.16), transparent 55%),
-        linear-gradient(180deg, #05060a 0%, #06070c 100%);
+        radial-gradient(900px 600px at 30% 10%, rgba(123,77,255,.24), transparent 55%),
+        radial-gradient(900px 700px at 85% 15%, rgba(58,167,255,.18), transparent 55%),
+        radial-gradient(900px 700px at 50% 95%, rgba(255,209,102,.10), transparent 55%),
+        linear-gradient(180deg, #05060a 0%, var(--bg) 100%);
       min-height:100vh;
       overflow-x:hidden;
     }
-    .wrap{max-width:720px;margin:0 auto;padding:16px;padding-bottom:90px;}
+    .wrap{max-width:760px;margin:0 auto;padding:16px;padding-bottom:92px;}
     .top{
       background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
       border:1px solid var(--stroke);
       border-radius:var(--radius2);
-      padding:14px 14px;
+      padding:14px;
       box-shadow:0 14px 40px var(--shadow);
       position:relative; overflow:hidden;
     }
     .top:before{
       content:""; position:absolute; inset:-1px;
-      background:radial-gradient(circle at 25% 0%, rgba(123,77,255,.28), transparent 55%),
-                 radial-gradient(circle at 80% 10%, rgba(58,167,255,.20), transparent 55%);
+      background:radial-gradient(circle at 25% 0%, rgba(123,77,255,.30), transparent 55%),
+                 radial-gradient(circle at 80% 10%, rgba(58,167,255,.22), transparent 55%);
       filter:blur(10px); opacity:.85; pointer-events:none;
     }
     .top > *{position:relative;}
@@ -62,7 +64,7 @@
       padding:10px 12px;border-radius:999px;
       background:rgba(255,255,255,.06);
       border:1px solid var(--stroke);
-      font-weight:900;
+      font-weight:950;
     }
     .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px;}
     .stat{
@@ -73,22 +75,6 @@
     }
     .stat .k{font-size:11px;color:var(--muted);}
     .stat .v{font-size:16px;font-weight:950;margin-top:4px;}
-    .panel{margin-top:14px;}
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
-      border:1px solid var(--stroke);
-      border-radius:var(--radius2);
-      padding:16px;
-      box-shadow:0 16px 40px var(--shadow);
-      position:relative; overflow:hidden;
-    }
-    .card:before{
-      content:""; position:absolute; inset:-1px;
-      background:radial-gradient(circle at 10% 10%, rgba(123,77,255,.22), transparent 60%),
-               radial-gradient(circle at 90% 20%, rgba(58,167,255,.15), transparent 60%);
-      opacity:.6; pointer-events:none;
-    }
-    .card > *{position:relative;}
     .tabs{display:flex;gap:10px;margin-top:12px;}
     .tab{
       flex:1; text-align:center;
@@ -106,25 +92,28 @@
       border-color:transparent;
       box-shadow:0 14px 30px rgba(123,77,255,.16), 0 14px 30px rgba(58,167,255,.12);
     }
-    .games{display:grid;gap:12px;margin-top:12px;}
-    .game{
-      border-radius:22px;
-      padding:18px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.22);
-      overflow:hidden;
-      position:relative;
-      cursor:pointer;
+
+    .panel{margin-top:14px;}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+      border:1px solid var(--stroke);
+      border-radius:var(--radius2);
+      padding:16px;
+      box-shadow:0 16px 40px var(--shadow);
+      position:relative; overflow:hidden;
     }
-    .game:before{
+    .card:before{
       content:""; position:absolute; inset:-1px;
-      background:radial-gradient(circle at 20% 20%, rgba(123,77,255,.25), transparent 60%),
-                 radial-gradient(circle at 85% 10%, rgba(58,167,255,.18), transparent 60%);
-      opacity:.9; pointer-events:none;
+      background:radial-gradient(circle at 10% 10%, rgba(123,77,255,.22), transparent 60%),
+               radial-gradient(circle at 90% 20%, rgba(58,167,255,.15), transparent 60%);
+      opacity:.6; pointer-events:none;
     }
-    .game h3{position:relative;font-weight:950;font-size:18px;}
-    .game p{position:relative;color:var(--muted);margin-top:6px;font-size:12.5px;}
-    .btnrow{display:flex;gap:10px;margin-top:12px;position:relative;}
+    .card > *{position:relative;}
+    .page{display:none;}
+    .page.active{display:block;animation:fade .18s ease;}
+    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+    .btnrow{display:flex;gap:10px;margin-top:12px;}
     .btn{
       flex:1;border:none;border-radius:18px;
       padding:12px 14px;
@@ -138,10 +127,190 @@
       background:linear-gradient(135deg, rgba(123,77,255,.95), rgba(58,167,255,.70));
       border-color:transparent;
     }
+    .btn.danger{
+      background:linear-gradient(135deg, rgba(255,77,109,.95), rgba(255,209,102,.55));
+      border-color:transparent;
+    }
+    .btn:disabled{opacity:.55;cursor:not-allowed;}
     .btn:active{transform:scale(.98);}
-    .page{display:none;}
-    .page.active{display:block;animation:fade .18s ease;}
-    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+    .field{
+      margin-top:12px;
+      background:rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      padding:12px;
+    }
+    .field label{display:block;color:var(--muted);font-size:11.5px;margin-bottom:6px;}
+    .field input,.field select,.field textarea{
+      width:100%;border:none;outline:none;background:transparent;color:#fff;
+      font-size:15px;font-weight:950;
+    }
+    .field textarea{min-height:60px;font-weight:700;font-size:13.5px;resize:none;}
+
+    .toast{
+      position:fixed;left:50%;bottom:90px;transform:translateX(-50%);
+      background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.14);
+      padding:10px 12px;border-radius:16px;
+      font-weight:950;font-size:12.5px;
+      opacity:0;transition:.22s;pointer-events:none;
+      max-width:92vw;text-align:center;
+      z-index:999;
+    }
+    .toast.show{opacity:1;}
+
+    /* Mines UI */
+    .minesTop{
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+      margin-top:8px;
+      flex-wrap:wrap;
+    }
+    .chip{
+      padding:8px 10px;border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      font-weight:950;
+      font-size:12px;
+    }
+    .minesBoard{
+      margin-top:12px;
+      display:grid;
+      gap:8px;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:22px;
+      padding:12px;
+      overflow:hidden;
+    }
+    .cell{
+      width:100%;
+      aspect-ratio: 1 / 1;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:950;
+      cursor:pointer;
+      user-select:none;
+      transition:.12s;
+    }
+    .cell:active{ transform: scale(.98); }
+    .cell.open{ background: rgba(31,226,160,.14); border-color: rgba(31,226,160,.22); }
+    .cell.boom{ background: rgba(255,77,109,.18); border-color: rgba(255,77,109,.26); }
+    .cell.disabled{ opacity:.55; cursor:not-allowed; }
+
+    /* Crash UI */
+    .crashArea{
+      margin-top:12px;
+      height:260px;
+      border-radius:26px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      position:relative;
+      overflow:hidden;
+    }
+    .gridline{
+      position:absolute; inset:0;
+      background:
+        linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px) 0 0 / 36px 36px,
+        linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px) 0 0 / 36px 36px;
+      opacity:.6;
+      pointer-events:none;
+    }
+    .hud{
+      position:absolute; top:12px; left:12px; right:12px;
+      display:flex; justify-content:space-between; gap:10px; align-items:center;
+      z-index:3;
+    }
+    .hudBox{
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      padding: 10px 12px;
+      min-width: 120px;
+    }
+    .hudLabel{ font-size:11px; color:var(--muted); }
+    .hudValue{ font-size:18px; font-weight:950; margin-top:2px; }
+    .rocket{
+      position:absolute;
+      left: 20px;
+      bottom: 26px;
+      width: 56px; height: 56px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(123,77,255,.95), rgba(58,167,255,.70));
+      box-shadow: 0 18px 50px rgba(123,77,255,.20), 0 18px 50px rgba(58,167,255,.16);
+      display:flex; align-items:center; justify-content:center;
+      font-size: 26px;
+      transform: translate(0,0);
+      transition: transform .08s linear;
+      z-index:2;
+    }
+
+    /* Roulette UI */
+    .wheelArea{
+      margin-top:12px;
+      height:260px;
+      border-radius:26px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      display:flex;align-items:center;justify-content:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .wheel{
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      border: 10px solid rgba(255,255,255,.08);
+      box-shadow: inset 0 0 0 8px rgba(0,0,0,.25), 0 20px 60px rgba(0,0,0,.35);
+      transform: rotate(0deg);
+      transition: transform 4.1s cubic-bezier(.1,.9,.1,1);
+      background:
+        conic-gradient(
+          #2df7c1 0deg 45deg,
+          #7b4dff 45deg 90deg,
+          #ff4d6d 90deg 135deg,
+          #3aa7ff 135deg 180deg,
+          #ffd166 180deg 225deg,
+          #7b4dff 225deg 270deg,
+          #ff4d6d 270deg 315deg,
+          #3aa7ff 315deg 360deg
+        );
+    }
+    .pointer{
+      position:absolute; top: 16px;
+      width:0;height:0;
+      border-left: 14px solid transparent;
+      border-right:14px solid transparent;
+      border-bottom:24px solid rgba(255,255,255,.92);
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,.4));
+      z-index:3;
+    }
+    .resultPill{
+      margin-top:12px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      font-weight:950;
+      text-align:center;
+    }
+
+    .list{display:grid;gap:10px;margin-top:12px;}
+    .item{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      padding:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+    }
+    .item .t{font-weight:950;}
+    .item .s{color:var(--muted);font-size:12px;margin-top:2px;}
+    .badge{font-weight:950;}
+    .good{color:var(--good);}
+    .bad{color:var(--bad);}
 
     .nav{
       position:fixed;left:0;right:0;bottom:0;
@@ -151,7 +320,7 @@
       padding:10px 14px;
       z-index:50;
     }
-    .navin{max-width:720px;margin:0 auto;display:flex;gap:10px;}
+    .navin{max-width:760px;margin:0 auto;display:flex;gap:10px;}
     .nbtn{
       flex:1;border-radius:16px;
       padding:10px 0;
@@ -168,46 +337,6 @@
       background:linear-gradient(135deg, rgba(123,77,255,.95), rgba(58,167,255,.70));
       border-color:transparent;
     }
-
-    .list{display:grid;gap:10px;margin-top:12px;}
-    .item{
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:18px;
-      padding:12px;
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:center;
-    }
-    .item .l .t{font-weight:950;}
-    .item .l .s{color:var(--muted);font-size:12px;margin-top:2px;}
-    .badge{font-weight:950;}
-    .good{color:var(--good);}
-    .bad{color:var(--bad);}
-
-    .field{
-      margin-top:12px;
-      background:rgba(0,0,0,.22);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:18px;
-      padding:12px;
-    }
-    .field label{display:block;color:var(--muted);font-size:11.5px;margin-bottom:6px;}
-    .field input,.field textarea{
-      width:100%;border:none;outline:none;background:transparent;color:#fff;
-      font-size:16px;font-weight:950;
-    }
-    .field textarea{min-height:60px;font-weight:700;font-size:13.5px;resize:none;}
-    .toast{
-      position:fixed;left:50%;bottom:90px;transform:translateX(-50%);
-      background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.14);
-      padding:10px 12px;border-radius:16px;
-      font-weight:950;font-size:12.5px;
-      opacity:0;transition:.22s;pointer-events:none;
-      max-width:92vw;text-align:center;
-    }
-    .toast.show{opacity:1;}
   </style>
 </head>
 <body>
@@ -232,7 +361,7 @@
 
     <div class="tabs">
       <div class="tab active" data-page="play">ИГРАТЬ</div>
-      <div class="tab" data-page="profile">ПРОФИЛЬ</div>
+      <div class="tab" data-page="wallet">ДЕПОЗИТ</div>
       <div class="tab" data-page="admin" id="adminTab" style="display:none;">АДМИН</div>
     </div>
   </div>
@@ -240,39 +369,118 @@
   <!-- PLAY -->
   <div class="panel page active" id="page-play">
     <div class="card">
-      <div class="games">
-        <div class="game" onclick="toast('Мины: демо. Логику докрутим потом')">
-          <h3>МИНЫ</h3>
-          <p>10x10, выбор мин, авто-коэфы (сейчас демо-экран)</p>
+      <div class="tabs" style="margin-top:0;">
+        <div class="tab active" data-sub="mines">МИНЫ</div>
+        <div class="tab" data-sub="crash">РАКЕТКА</div>
+        <div class="tab" data-sub="roulette">РУЛЕТКА</div>
+      </div>
+
+      <!-- MINES -->
+      <div class="page active" id="sub-mines">
+        <div class="minesTop">
+          <div class="chip">Размер:
+            <select id="minesSize" style="margin-left:8px;">
+              <option value="3">3x3</option>
+              <option value="5" selected>5x5</option>
+              <option value="10">10x10</option>
+            </select>
+          </div>
+          <div class="chip">Мины:
+            <input id="minesCount" type="number" min="1" max="10" value="3" style="width:60px;margin-left:8px;">
+          </div>
+          <div class="chip">Ставка:
+            <input id="minesBet" type="number" min="1" step="1" value="10" style="width:80px;margin-left:8px;">
+          </div>
         </div>
-        <div class="game" onclick="toast('Ракета: демо. Следующим шагом сделаем как надо')">
-          <h3>РАКЕТКА</h3>
-          <p>Crash-коэф, cashout, история раундов (демо)</p>
+
+        <div class="minesTop">
+          <div class="chip">Множитель: <span id="minesMult">1.00x</span></div>
+          <div class="chip">Потенциал: <span id="minesPotential">0</span></div>
+          <div class="chip">Открыто: <span id="minesOpened">0</span></div>
         </div>
-        <div class="game" onclick="toast('Рулетка: демо. Сделаем призы/сектора')">
-          <h3>РУЛЕТКА</h3>
-          <p>Сектора с шансами, призы, анимация (демо)</p>
+
+        <div class="btnrow">
+          <button class="btn primary" id="minesStart" onclick="minesStart()">Старт</button>
+          <button class="btn" id="minesCash" onclick="minesCashout()" disabled>Забрать</button>
+          <button class="btn danger" id="minesReset" onclick="minesReset()">Сброс</button>
+        </div>
+
+        <div class="minesBoard" id="minesBoard"></div>
+      </div>
+
+      <!-- CRASH -->
+      <div class="page" id="sub-crash">
+        <div class="field">
+          <label>Ставка (Stars)</label>
+          <input id="crashBet" type="number" min="1" step="1" value="10">
+        </div>
+        <div class="field">
+          <label>Авто-кэшаут (0 = ручной, иначе >= 1.05)</label>
+          <input id="crashAuto" type="number" min="0" step="0.05" value="0">
+        </div>
+
+        <div class="crashArea">
+          <div class="gridline"></div>
+          <div class="hud">
+            <div class="hudBox">
+              <div class="hudLabel">Коэфф</div>
+              <div class="hudValue" id="crashMult">1.00x</div>
+            </div>
+            <div class="hudBox" style="text-align:right;">
+              <div class="hudLabel">Статус</div>
+              <div class="hudValue" id="crashStatus">READY</div>
+            </div>
+          </div>
+          <div class="rocket" id="rocket">🚀</div>
+        </div>
+
+        <div class="btnrow">
+          <button class="btn primary" id="crashStart" onclick="crashStart()">Старт</button>
+          <button class="btn danger" id="crashCash" onclick="crashCashout()" disabled>Забрать</button>
+          <button class="btn" onclick="crashStopUi()">Стоп UI</button>
         </div>
       </div>
+
+      <!-- ROULETTE -->
+      <div class="page" id="sub-roulette">
+        <div class="field">
+          <label>Ставка (Stars)</label>
+          <input id="rouBet" type="number" min="1" step="1" value="10">
+        </div>
+
+        <div class="wheelArea">
+          <div class="pointer"></div>
+          <div class="wheel" id="wheel"></div>
+        </div>
+
+        <div class="resultPill" id="rouRes">Результат: —</div>
+
+        <div class="btnrow">
+          <button class="btn primary" id="rouSpin" onclick="rouletteSpin()">Крутить</button>
+          <button class="btn" onclick="setQuick('rouBet',10)">x10</button>
+          <button class="btn" onclick="setQuick('rouBet',50)">x50</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <!-- PROFILE -->
-  <div class="panel page" id="page-profile">
+  <!-- WALLET -->
+  <div class="panel page" id="page-wallet">
     <div class="card">
-      <div class="title" style="font-weight:950;font-size:16px;">ДЕПОЗИТ</div>
+      <div class="title" style="font-weight:950;font-size:16px;">ЗАЯВКА НА ДЕПОЗИТ</div>
       <div class="sub" style="margin-top:6px;">
-        Создай заявку — админу придёт @username/ID, он свяжется и подтвердит.
+        Создай заявку — админу придёт @username/ID. Потом он подтвердит или отклонит.
       </div>
 
       <div class="field">
-        <label>Сумма</label>
-        <input id="depAmount" type="number" min="1" step="1" value="10">
+        <label>Сумма (Stars)</label>
+        <input id="depAmount" type="number" min="1" step="1" value="100">
       </div>
 
       <div class="field">
         <label>Комментарий (куда перевёл / что написал)</label>
-        <textarea id="depNote" placeholder="Например: перевёл на карту ****1234, чек есть"></textarea>
+        <textarea id="depNote" placeholder="Например: перевёл, чек есть, напиши мне в ЛС"></textarea>
       </div>
 
       <div class="btnrow">
@@ -287,7 +495,7 @@
     <div class="card">
       <div class="title" style="font-weight:950;font-size:16px;">АДМИН-ПАНЕЛЬ</div>
       <div class="sub" style="margin-top:6px;">
-        Видна только админу. Здесь заявки на депозит + управление stars.
+        Заявки на депозит + управление Stars.
       </div>
 
       <div class="btnrow">
@@ -295,15 +503,15 @@
         <button class="btn" onclick="refreshMe()">Обновить профиль</button>
       </div>
 
-      <div class="list" id="depList" style="margin-top:12px;"></div>
+      <div class="list" id="depList"></div>
 
       <div class="field" style="margin-top:14px;">
         <label>Изменить Stars пользователю (User ID)</label>
         <input id="starsUserId" type="number" placeholder="например 123456789">
       </div>
       <div class="btnrow">
-        <button class="btn primary" onclick="changeStars(+1)">+1 star</button>
-        <button class="btn" onclick="changeStars(-1)">-1 star</button>
+        <button class="btn primary" onclick="changeStars(+1)">+1</button>
+        <button class="btn" onclick="changeStars(-1)">-1</button>
         <button class="btn" onclick="changeStars(+10)">+10</button>
       </div>
     </div>
@@ -312,8 +520,8 @@
 
 <div class="nav">
   <div class="navin">
-    <div class="nbtn active" data-page="play">ИГРАТЬ</div>
-    <div class="nbtn" data-page="profile">ПРОФИЛЬ</div>
+    <div class="nbtn active" data-page="play">ИГРЫ</div>
+    <div class="nbtn" data-page="wallet">ДЕПОЗИТ</div>
     <div class="nbtn" data-page="admin" id="adminNav" style="display:none;">АДМИН</div>
   </div>
 </div>
@@ -325,29 +533,15 @@
   if (tg){ tg.expand(); tg.ready(); }
 
   const $ = (id)=>document.getElementById(id);
-  function showToast(t){
+  function toast(t){
     const el = $("toast");
     el.textContent = t;
     el.classList.add("show");
-    setTimeout(()=>el.classList.remove("show"), 1500);
-  }
-  function toast(t){ showToast(t); if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); }
-
-  function setPage(p){
-    document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
-    document.querySelector("#page-"+p).classList.add("active");
-
-    document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active", x.dataset.page===p));
-    document.querySelectorAll(".nbtn").forEach(x=>x.classList.toggle("active", x.dataset.page===p));
+    setTimeout(()=>el.classList.remove("show"), 1400);
+    if(tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
   }
 
-  document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click", ()=>setPage(t.dataset.page)));
-  document.querySelectorAll(".nbtn").forEach(t=>t.addEventListener("click", ()=>setPage(t.dataset.page)));
-
-  function initData(){
-    // initData string для backend проверки
-    return tg?.initData || "";
-  }
+  function initData(){ return tg?.initData || ""; }
 
   async function api(path, method="GET", body=null){
     const opts = { method, headers: { "X-TG-INITDATA": initData() } };
@@ -363,18 +557,45 @@
     return await r.json();
   }
 
-  let ME = null;
+  // Top nav pages
+  function setPage(p){
+    document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+    document.querySelector("#page-"+p).classList.add("active");
+    document.querySelectorAll(".tab").forEach(x=>{
+      if(x.dataset.page) x.classList.toggle("active", x.dataset.page===p);
+    });
+    document.querySelectorAll(".nbtn").forEach(x=>x.classList.toggle("active", x.dataset.page===p));
+  }
+  document.querySelectorAll(".tab").forEach(t=>{
+    if(t.dataset.page) t.addEventListener("click", ()=>setPage(t.dataset.page));
+  });
+  document.querySelectorAll(".nbtn").forEach(b=>b.addEventListener("click", ()=>setPage(b.dataset.page)));
 
+  // Sub tabs (games)
+  function setSub(sub){
+    document.querySelectorAll("#page-play .page").forEach(x=>x.classList.remove("active"));
+    document.querySelector("#sub-"+sub).classList.add("active");
+    document.querySelectorAll("#page-play .tab").forEach(x=>{
+      if(x.dataset.sub) x.classList.toggle("active", x.dataset.sub===sub);
+    });
+  }
+  document.querySelectorAll("#page-play .tab").forEach(t=>{
+    if(t.dataset.sub) t.addEventListener("click", ()=>setSub(t.dataset.sub));
+  });
+
+  function setQuick(id, v){ $(id).value = v; }
+
+  let ME = null;
   async function refreshMe(){
     try{
       ME = await api("/api/me");
       const uname = ME.username ? "@"+ME.username : "Без username";
       $("uTitle").textContent = uname;
       $("uSub").textContent = "ID: " + ME.user_id;
+
       $("stars").textContent = ME.stars;
       $("balance").textContent = ME.balance.toFixed(2);
       $("bal").textContent = "★ " + ME.stars + " | " + ME.balance.toFixed(2);
-
       $("status").textContent = ME.is_admin ? "ADMIN" : "USER";
 
       if(ME.is_admin){
@@ -388,40 +609,51 @@
         }
       }
     }catch(e){
-      toast("Ошибка /api/me");
       console.error(e);
+      toast("Ошибка /api/me");
     }
   }
 
+  // ===== Deposits
   async function sendDeposit(){
     try{
       const amount = Number($("depAmount").value || 0);
       const note = ($("depNote").value || "").trim();
       if(amount <= 0){ toast("Сумма должна быть > 0"); return; }
       await api("/api/deposit/request", "POST", { amount, note });
-      toast("Заявка отправлена ✅");
       $("depNote").value="";
+      toast("Заявка отправлена ✅");
     }catch(e){
-      toast("Ошибка заявки");
       console.error(e);
+      toast("Ошибка заявки");
     }
   }
 
+  async function loadDeposits(){
+    try{
+      const res = await api("/api/admin/deposits");
+      renderDeposits(res.items);
+      toast("Обновлено");
+    }catch(e){
+      console.error(e);
+      toast("Нет доступа/ошибка");
+    }
+  }
   function renderDeposits(items){
     const el = $("depList");
     if(!items || !items.length){
-      el.innerHTML = `<div class="item"><div class="l"><div class="t">Заявок нет</div><div class="s">—</div></div><div class="badge">OK</div></div>`;
+      el.innerHTML = `<div class="item"><div><div class="t">Заявок нет</div><div class="s">—</div></div><div class="badge">OK</div></div>`;
       return;
     }
     el.innerHTML = "";
     for(const d of items){
+      const uname = d.username ? "@"+d.username : "—";
       const st = d.status;
       const cls = st === "approved" ? "good" : st === "rejected" ? "bad" : "";
-      const uname = d.username ? "@"+d.username : "—";
       el.innerHTML += `
         <div class="item">
-          <div class="l">
-            <div class="t">#${d.id} • ${uname} • ${d.amount}</div>
+          <div>
+            <div class="t">#${d.id} • ${uname} • ${d.amount}★</div>
             <div class="s">UserID: ${d.user_id} • ${d.note || ""}</div>
           </div>
           <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
@@ -437,18 +669,6 @@
       `;
     }
   }
-
-  async function loadDeposits(){
-    try{
-      const res = await api("/api/admin/deposits");
-      renderDeposits(res.items);
-      toast("Обновлено");
-    }catch(e){
-      toast("Нет доступа/ошибка");
-      console.error(e);
-    }
-  }
-
   async function approveDep(id){
     try{
       await api(`/api/admin/deposits/${id}/approve`, "POST", {});
@@ -456,19 +676,18 @@
       loadDeposits();
       refreshMe();
     }catch(e){
-      toast("Ошибка approve");
       console.error(e);
+      toast("Ошибка approve");
     }
   }
-
   async function rejectDep(id){
     try{
       await api(`/api/admin/deposits/${id}/reject`, "POST", {});
       toast("Отклонено ❌");
       loadDeposits();
     }catch(e){
-      toast("Ошибка reject");
       console.error(e);
+      toast("Ошибка reject");
     }
   }
 
@@ -480,12 +699,242 @@
       toast("Готово ⭐");
       refreshMe();
     }catch(e){
-      toast("Ошибка stars");
       console.error(e);
+      toast("Ошибка stars");
     }
   }
 
+  // ===== MINES
+  let mines = {
+    active:false,
+    size:5,
+    opened:new Set(),
+    minesReveal:[]
+  };
+
+  function buildBoard(size){
+    const board = $("minesBoard");
+    board.innerHTML = "";
+    board.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+    mines.opened = new Set();
+    mines.minesReveal = [];
+    const total = size*size;
+    for(let i=0;i<total;i++){
+      const c = document.createElement("div");
+      c.className = "cell";
+      c.dataset.idx = String(i);
+      c.textContent = "";
+      c.onclick = ()=>minesClick(i);
+      board.appendChild(c);
+    }
+  }
+
+  function setMinesUiState(active){
+    $("minesStart").disabled = active;
+    $("minesCash").disabled = !active;
+  }
+
+  function minesUpdateHud(state){
+    $("minesMult").textContent = (state.mult || 1).toFixed(2) + "x";
+    $("minesPotential").textContent = (state.potential || 0).toFixed(2) + "★";
+    $("minesOpened").textContent = String((state.opened || []).length);
+  }
+
+  async function minesStart(){
+    try{
+      const size = Number($("minesSize").value);
+      const minesCount = Math.max(1, Math.min(10, Number($("minesCount").value || 1)));
+      $("minesCount").value = minesCount;
+
+      const bet = Number($("minesBet").value || 0);
+      if(bet <= 0){ toast("Ставка > 0"); return; }
+
+      await api("/api/game/mines/start","POST",{ size, mines: minesCount, bet });
+      mines.active = true;
+      mines.size = size;
+      buildBoard(size);
+      setMinesUiState(true);
+      minesUpdateHud({mult:1, potential:0, opened:[]});
+      toast("Игра началась ✅");
+      refreshMe();
+    }catch(e){
+      console.error(e);
+      toast("Ошибка старта мин");
+    }
+  }
+
+  async function minesClick(idx){
+    if(!mines.active) return;
+    try{
+      const res = await api("/api/game/mines/open","POST",{ index: idx });
+      const board = $("minesBoard");
+
+      // mark opened
+      if(res.opened){
+        for(const o of res.opened){
+          const el = board.querySelector(`.cell[data-idx="${o}"]`);
+          if(el){ el.classList.add("open"); el.textContent="⭐"; }
+        }
+      }
+      minesUpdateHud(res);
+
+      if(res.boom){
+        mines.active = false;
+        setMinesUiState(false);
+        // reveal mines
+        const minesArr = res.mines || [];
+        for(const m of minesArr){
+          const el = board.querySelector(`.cell[data-idx="${m}"]`);
+          if(el){ el.classList.add("boom"); el.textContent="💣"; }
+        }
+        // disable all
+        board.querySelectorAll(".cell").forEach(c=>c.classList.add("disabled"));
+        toast("💥 Бомба! Проигрыш");
+        refreshMe();
+        return;
+      }
+    }catch(e){
+      console.error(e);
+      toast("Ошибка хода");
+    }
+  }
+
+  async function minesCashout(){
+    try{
+      const res = await api("/api/game/mines/cashout","POST",{});
+      mines.active = false;
+      setMinesUiState(false);
+      toast(`Забрал +${res.win.toFixed(2)}★ (${res.mult.toFixed(2)}x)`);
+      refreshMe();
+    }catch(e){
+      console.error(e);
+      toast("Нельзя забрать (открой 1+ клетку)");
+    }
+  }
+
+  function minesReset(){
+    mines.active = false;
+    setMinesUiState(false);
+    buildBoard(Number($("minesSize").value));
+    minesUpdateHud({mult:1,potential:0,opened:[]});
+    toast("Сброс");
+  }
+
+  // ===== CRASH
+  let crashTimer = null;
+  function crashStopUi(){
+    if(crashTimer) clearInterval(crashTimer);
+    crashTimer = null;
+    $("crashStatus").textContent = "READY";
+    $("crashMult").textContent = "1.00x";
+    $("crashCash").disabled = true;
+    $("crashStart").disabled = false;
+    $("rocket").style.transform = "translate(0px,0px)";
+    toast("UI остановлен");
+  }
+
+  async function crashStart(){
+    try{
+      const bet = Number($("crashBet").value || 0);
+      const auto = Number($("crashAuto").value || 0);
+      if(bet <= 0){ toast("Ставка > 0"); return; }
+      await api("/api/game/crash/start","POST",{ bet, auto });
+      $("crashStart").disabled = true;
+      $("crashCash").disabled = false;
+      $("crashStatus").textContent = "FLYING";
+      refreshMe();
+
+      const started = performance.now();
+      if(crashTimer) clearInterval(crashTimer);
+      crashTimer = setInterval(async ()=>{
+        try{
+          const s = await api("/api/game/crash/state");
+          if(!s.active){
+            $("crashStatus").textContent = "CRASH";
+            $("crashCash").disabled = true;
+            $("crashStart").disabled = false;
+            if(crashTimer) clearInterval(crashTimer);
+            crashTimer = null;
+            toast("Краш 😅");
+            refreshMe();
+            return;
+          }
+          $("crashMult").textContent = (s.mult || 1).toFixed(2)+"x";
+
+          const t = (performance.now() - started)/1000;
+          const x = Math.min(520, 20 + t*120);
+          const y = Math.min(200, 10 + t*70);
+          $("rocket").style.transform = `translate(${x}px, -${y}px)`;
+
+          if(s.cashed){
+            $("crashStatus").textContent = "CASHED";
+            $("crashCash").disabled = true;
+          }
+        }catch(e){
+          console.error(e);
+        }
+      }, 250);
+
+      toast("Ракета старт ✅");
+    }catch(e){
+      console.error(e);
+      toast("Ошибка старта ракеты");
+    }
+  }
+
+  async function crashCashout(){
+    try{
+      const res = await api("/api/game/crash/cashout","POST",{});
+      $("crashStatus").textContent = "CASHED";
+      $("crashCash").disabled = true;
+      toast(`Забрал +${res.win.toFixed(2)}★ (${res.mult.toFixed(2)}x)`);
+      refreshMe();
+    }catch(e){
+      console.error(e);
+      toast("Не успел / ошибка");
+    }
+  }
+
+  // ===== ROULETTE
+  let wheelTurns = 0;
+  async function rouletteSpin(){
+    try{
+      const bet = Number($("rouBet").value || 0);
+      if(bet <= 0){ toast("Ставка > 0"); return; }
+
+      $("rouSpin").disabled = true;
+      const res = await api("/api/game/roulette/spin","POST",{ bet });
+
+      // animate to sector
+      const sector = res.sector; // 0..7
+      const baseDeg = sector * 45 + 22.5;
+      wheelTurns += 1;
+      const spins = 6 + Math.floor(Math.random()*3);
+      const deg = spins*360 + baseDeg;
+      $("wheel").style.transform = `rotate(${deg}deg)`;
+
+      setTimeout(()=>{
+        $("rouRes").textContent = `Результат: ${res.label} • +${res.win.toFixed(2)}★`;
+        toast(res.win > 0 ? "Профит ✅" : "Не повезло 😅");
+        refreshMe();
+        $("rouSpin").disabled = false;
+      }, 4200);
+
+    }catch(e){
+      console.error(e);
+      toast("Ошибка рулетки / баланс");
+      $("rouSpin").disabled = false;
+    }
+  }
+
+  // init UI
   refreshMe();
+  buildBoard(Number($("minesSize").value));
+  document.querySelectorAll(".tab").forEach(t=>{
+    if(t.dataset.sub){
+      t.addEventListener("click", ()=>setSub(t.dataset.sub));
+    }
+  });
 </script>
 </body>
 </html>
